@@ -8,6 +8,8 @@ pandas = "*"
 numpy = "*"
 requests = "*"
 beautifulsoup4 = "*"
+nba-api = "*"
+matplotlib = "*"
 
 [dev-packages]
 
