@@ -11,6 +11,7 @@ beautifulsoup4 = "*"
 nba-api = "*"
 matplotlib = "*"
 tabulate = "*"
+seaborn = "*"
 
 [dev-packages]
 
