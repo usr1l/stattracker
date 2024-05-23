@@ -11,4 +11,4 @@ from get_players import get_nba_players_csv, get_players_from_csv
 pd.set_option('display.max_columns', None)
 
 nba_players = get_players_from_csv('nba_players.csv')
-print(nba_players('LeBron James')[0])
+print(nba_players('LeBron James')[0]['PERSON_ID'])
