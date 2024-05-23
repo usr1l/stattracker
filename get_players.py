@@ -9,7 +9,7 @@ def get_nba_players_csv():
         'nba_players.csv', index=False)
 
 
-def get_nba_players_from_csv(csv_file):
+def get_players_from_csv(csv_file):
     def find_player_by_id(player_name):
         # Read the CSV file into a DataFrame
         df = pd.read_csv(csv_file)
