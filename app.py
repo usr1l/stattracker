@@ -7,7 +7,8 @@ import requests
 import re
 import json
 from bs4 import BeautifulSoup
-from get_players import get_nba_players_csv, find_player_by_id
+from get_players import get_nba_players_csv, get_nba_players_from_csv
 pd.set_option('display.max_columns', None)
 
-print(find_player_by_id("LeBron James"))
+nba_players = get_nba_players_from_csv('nba_players.csv')
+print(nba_players('LeBron James')[0])
