@@ -58,5 +58,5 @@ class NBA:
         team_roster_df = team_roster.get_data_frames()[0]
 
         # returns [{'PLAYER_ID': 2544, 'PLAYER': 'LeBron James'}, ...]
+        # team_roster_df[['PLAYER_ID', 'PLAYER']].to_dict(orient='records')
         return {player['PLAYER']: player['PLAYER_ID'] for player in team_roster_df.to_dict(orient='records')}
-    # team_roster_df[['PLAYER_ID', 'PLAYER']].to_dict(orient='records')
