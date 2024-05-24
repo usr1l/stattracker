@@ -9,5 +9,8 @@ pd.set_option('display.max_columns', None)
 
 CURRENT_SEASON_PLAYERS = NBA('nba_players.csv')
 
+tatum = CURRENT_SEASON_PLAYERS.get_player_by_name('jayson tatum')
+print(tatum)
+
 print(CURRENT_SEASON_PLAYERS.get_players_by_team('celtics'))
 # print(get_player_career_stats(nba_players('lebron james')[0]['PERSON_ID']))

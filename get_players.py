@@ -39,7 +39,7 @@ class NBA:
         self.csv_file = csv_file
         self.df = pd.read_csv(csv_file)
 
-    def get_player_by_id(self, player_name):
+    def get_player_by_name(self, player_name):
 
         # Search for the player name
         result = self.df[self.df['DISPLAY_FIRST_LAST'].str.contains(
@@ -49,7 +49,7 @@ class NBA:
         if result.empty:
             return f"No player found with the name: {player_name}"
         else:
-            return result[['PERSON_ID', 'DISPLAY_FIRST_LAST']].to_dict(orient='records')
+            return [result['PERSON_ID'].values[0], result['DISPLAY_FIRST_LAST'].values[0]]
 
     def get_players_by_team(self, team_name):
         team_id = self.teams[team_name.lower()][0]
@@ -58,4 +58,5 @@ class NBA:
         team_roster_df = team_roster.get_data_frames()[0]
 
         # returns [{'PLAYER_ID': 2544, 'PLAYER': 'LeBron James'}, ...]
-        return team_roster_df[['PLAYER_ID', 'PLAYER']].to_dict(orient='records')
+        return {player['PLAYER']: player['PLAYER_ID'] for player in team_roster_df.to_dict(orient='records')}
+    # team_roster_df[['PLAYER_ID', 'PLAYER']].to_dict(orient='records')
