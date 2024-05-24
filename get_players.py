@@ -39,7 +39,7 @@ class NBA:
         self.csv_file = csv_file
         self.df = pd.read_csv(csv_file)
 
-    def get_id_by_name(self, player_name):
+    def get_id_by_player_name(self, player_name):
         # Search for the player name
         result = self.df[self.df['DISPLAY_FIRST_LAST'].str.contains(
             player_name, case=False, na=False)]
@@ -50,6 +50,15 @@ class NBA:
         else:
             print(result['PERSON_ID'].values[0])
             return result['PERSON_ID'].values[0]
+
+    def get_id_by_team_name(self, team_name):
+        return self.teams[team_name.lower()][0]
+
+    def get_full_team_name(self, team_name):
+        return self.teams[team_name.lower()][1]
+
+    def get_team_abbreviation(self, team_name):
+        return self.teams[team_name.lower()][2]
 
     def get_player_by_name(self, player_name):
 
