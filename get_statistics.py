@@ -2,6 +2,10 @@ import pandas as pd
 from nba_api.stats.endpoints import playercareerstats
 
 
-class NBAStatistics:
-    def __init__(self, csv_file)
-    # def get_pl
+def get_player_career_stats(player_id):
+    player_stats = playercareerstats.PlayerCareerStats(player_id=player_id)
+
+    # gets alll seasons, pick the first for current season
+    # print(player_stats.get_data_frames())
+    player_stats_df = player_stats.get_data_frames()[0]
+    return player_stats_df
