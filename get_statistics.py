@@ -26,12 +26,18 @@ class NBAStats:
 
         return stats_df
 
-    def get_player_last_games(self, player_id, num_games):
+    # opponent team is abbrev
+    def get_player_last_games(self, player_id, num_games=10, home=False, away=False, opponent_team=''):
+        opponent_team = " " + opponent_team if opponent_team else ""
         gamelog_regular = playergamelog.PlayerGameLog(
             player_id=player_id, season='2023-24', season_type_all_star='Regular Season').get_data_frames()[0]
         gamelog_playoffs = playergamelog.PlayerGameLog(
             player_id=player_id, season='2023-24', season_type_all_star='Playoffs').get_data_frames()[0]
         logs = pd.concat([gamelog_playoffs, gamelog_regular])
+        if home == True:
+            return logs[logs['MATCHUP'].str.contains('vs.' + opponent_team)].head(num_games)
+        if away == True:
+            return logs[logs['MATCHUP'].str.contains('@' + opponent_team)].head(num_games)
         return logs.head(num_games)
 
     def get_player_seasons(self, player_id):
@@ -41,7 +47,7 @@ class NBAStats:
         to_year = player_info['TO_YEAR'].values[0]
         return range(from_year, to_year + 1)
 
-    def get_player_games_last_n_seasons_against_team(self, player_id, seasons=['2023-24', '2022-23', '2021-22', ], matchup=None, num_games=None):
+    def get_player_games_last_n_seasons_against_team(self, player_id, seasons=['2023-24', '2022-23', '2021-22', '2020-21'], matchup=None, num_games=None):
         logs = pd.DataFrame()
         for season in seasons:
             try:
@@ -68,6 +74,7 @@ class NBAStats:
                         logs = pd.concat([logs, gamelog_regular])
             except KeyError as e:
                 print(f"Error: {e}. Skipping season {season}.")
+        # print(logs.columns)
         if num_games:
             return logs.head(num_games)
         return logs

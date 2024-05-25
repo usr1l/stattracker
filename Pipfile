@@ -12,6 +12,7 @@ nba-api = "*"
 matplotlib = "*"
 tabulate = "*"
 seaborn = "*"
+tk = "*"
 
 [dev-packages]
 
