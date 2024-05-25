@@ -57,7 +57,7 @@ class NBA:
     def get_full_team_name(self, team_name):
         return self.teams[team_name.lower()][1]
 
-    def get_team_abbreviation(self, team_name):
+    def get_team_abbreviation_by_name(self, team_name):
         return self.teams[team_name.lower()][2]
 
     def get_player_by_name(self, player_name):

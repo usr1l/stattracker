@@ -70,27 +70,36 @@ class NBAStats:
     #         by='GAME_DATE', ascending=False).head(n)
 
     #     return games_against_team
-    def get_player_games_last_n_seasons(self, player_id, seasons=['2023-24', '2022-23', '2021-22'], team_id=None):
+    def get_player_games_last_n_seasons_against_team(self, player_id, seasons=['2023-24', '2022-23', '2021-22', ], matchup=None):
         logs = pd.DataFrame()
         for season in seasons:
-            try:
-                gamelog_regular = playergamelog.PlayerGameLog(
-                    player_id=player_id, season=season, season_type_all_star='Regular Season').get_data_frames()[0]
-                gamelog_playoffs = playergamelog.PlayerGameLog(
-                    player_id=player_id, season=season, season_type_all_star='Playoffs').get_data_frames()[0]
-                if team_id:
-                    if not gamelog_playoffs.empty:
-                        gamelog_playoffs = gamelog_playoffs[gamelog_playoffs['TEAM_ID'] == team_id]
-                    if not gamelog_regular.empty:
-                        gamelog_regular = gamelog_regular[gamelog_regular['TEAM_ID'] == team_id]
-                if not gamelog_playoffs.empty:
-                    if not gamelog_regular.empty:
-                        logs = pd.concat(
-                            [logs, gamelog_playoffs, gamelog_regular])
-                    else:
-                        logs = pd.concat([logs, gamelog_playoffs])
-                else:
-                    logs = pd.concat([logs, gamelog_regular])
-            except KeyError as e:
-                print(f"Error: {e}. Skipping season {season}.")
-        return logs
+            # try:
+            gamelog_regular = playergamelog.PlayerGameLog(
+                player_id=player_id, season=season, season_type_all_star='Regular Season').get_data_frames()[0]
+            gamelog_playoffs = playergamelog.PlayerGameLog(
+                player_id=player_id, season=season, season_type_all_star='Playoffs').get_data_frames()[0]
+            print(gamelog_regular[gamelog_regular['MATCHUP'].str.contains(
+                matchup, case=False, na=False)])
+            # print(gamelog_regular.columns)
+            print(gamelog_regular['MATCHUP'])
+            break
+        #         if matchup:
+        #             if not gamelog_playoffs.empty:
+        #                 gamelog_playoffs = gamelog_playoffs[gamelog_playoffs['MATCHUP'].str.contains(
+        #                     matchup, case=False, na=False)]
+        #             if not gamelog_regular.empty:
+        #                 gamelog_regular = gamelog_regular[gamelog_regular['MATCHUP'].str.contains(
+        #                     matchup, case=False, na=False)]
+
+        #             # print(gamelog_playoffs, gamelog_regular)
+        #             if not gamelog_playoffs.empty:
+        #                 if not gamelog_regular.empty:
+        #                     logs = pd.concat(
+        #                         [logs, gamelog_playoffs, gamelog_regular])
+        #                 else:
+        #                     logs = pd.concat([logs, gamelog_playoffs])
+        #             elif not gamelog_regular.empty:
+        #                 logs = pd.concat([logs, gamelog_regular])
+        #     except KeyError as e:
+        #         print(f"Error: {e}. Skipping season {season}.")
+        # return logs
