@@ -47,7 +47,15 @@ class NBAStats:
         to_year = player_info['TO_YEAR'].values[0]
         return range(from_year, to_year + 1)
 
-    def get_player_games_last_n_seasons_against_team(self, player_id, seasons=['2023-24', '2022-23', '2021-22', '2020-21'], matchup=None, num_games=None):
+    def get_player_games_last_n_seasons_against_team(self, player_id, seasons=['2023-24', '2022-23', '2021-22', '2020-21'], matchup="", num_games=10, home=False, away=False):
+
+        if home:
+            matchup = "vs. " + matchup
+        elif away:
+            matchup = "@ " + matchup
+        else:
+            matchup = matchup
+
         logs = pd.DataFrame()
         for season in seasons:
             try:

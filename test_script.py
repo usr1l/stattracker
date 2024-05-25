@@ -15,7 +15,7 @@ tatum = CURRENT_SEASON_PLAYERS.get_player_by_name('jayson tatum')
 # print(get_player_career_stats(tatum[0]))
 # print(list(celtics_players.values()))
 # print(get_team_players_career_stats(list(celtics_players.values())))
-print(STATISTICS.get_player_last_games(tatum[0], away=True, opponent_team='MIL'))
+# print(STATISTICS.get_player_last_games(tatum[0], away=True, opponent_team='MIL'))
 # print(CURRENT_SEASON_PLAYERS.get_id_by_name('lebron james'))
 # print(STATISTICS.get_player_career_stats(
 #     CURRENT_SEASON_PLAYERS.get_id_by_player_name('lebron james')))
@@ -25,8 +25,15 @@ print(STATISTICS.get_player_last_games(tatum[0], away=True, opponent_team='MIL')
 # id = tatum[0]
 # print(CURRENT_SEASON_PLAYERS.get_id_by_team_name('heat'))
 # print(STATISTICS.get_player_games_last_n_seasons_against_team(s
-# STATISTICS.get_player_games_last_n_seasons_against_team(
-# tatum[0], matchup=CURRENT_SEASON_PLAYERS.get_team_abbreviation_by_name('heat'))
+# print(STATISTICS.get_player_games_last_n_seasons_against_team(
+# tatum[0], matchup=CURRENT_SEASON_PLAYERS.get_team_abbreviation_by_name('heat'), away=True))
+print(STATISTICS.get_player_games_last_n_seasons_against_team(
+  CURRENT_SEASON_PLAYERS.get_player_by_name('pascal siakam'),
+  matchup=CURRENT_SEASON_PLAYERS.get_team_abbreviation_by_name('nuggets'),
+  num_games=30,
+  away=True,
+  home=False))
+
 # GAMES = STATISTICS.get_player_games_last_n_seasons_against_team(
 #     tatum[0], matchup=CURRENT_SEASON_PLAYERS.get_team_abbreviation_by_name('heat'), num_games=90)
 # CHARTS.plot_game_logs(GAMES)
