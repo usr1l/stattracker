@@ -48,7 +48,6 @@ class NBA:
         if result.empty:
             return f"No player found with the name: {player_name}"
         else:
-            print(result['PERSON_ID'].values[0])
             return result['PERSON_ID'].values[0]
 
     # def get_player_name_by_id(self, player_id):
@@ -61,6 +60,7 @@ class NBA:
             return self.teams[team_name.lower()][0]
         else:
             return ""
+
     def get_team_abbreviation_by_name(self, team_name):
         if team_name == "":
             return ""

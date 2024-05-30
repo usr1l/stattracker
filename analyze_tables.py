@@ -77,7 +77,7 @@ class Analysis():
         num_logs = len(logs)
         logs = logs[logs['PTS'] + logs['REB'] + logs['AST'] >= total]
         new_num_logs = len(logs)
-        return " + ".join(cats), new_num_logs/num_logs
+        return " + ".join(cats), f'{new_num_logs/num_logs * 100} %'
 
     def get_probability_stl_blk(self, logs, stl=None, blk=None, total=0):
         cats = []
@@ -88,4 +88,120 @@ class Analysis():
         num_logs=len(logs)
         logs = logs[logs['STL'] + logs['BLK'] >= total]
         new_num_logs=len(logs)
-        return " + ".join(cats), new_num_logs/num_logs
+        return " + ".join(cats), f'{new_num_logs/num_logs * 100} %'
+
+    def get_combination_probability(self, log1, log2, player1, player2, log3=None, player3=None):
+        # for tracking which dates fit for all
+        dates = {}
+        # for tracking how many they played in together
+        matches = {}
+        count = 0
+        total = 0
+        num_games = len(log1)
+        for index, row in log1.iterrows():
+            game_id = row['Game_ID']
+            if game_id not in matches:
+                matches[game_id] = 1
+            else:
+                matches[game_id] += 1
+            if 'total' in player1 and isinstance(player1['total'], int):
+                if row['AST'] + row['REB'] + row['PTS'] >= player1['total']:
+                    game_id = row['Game_ID']
+                    if game_id not in dates:
+                        dates[game_id] = 1
+                    else:
+                        dates[game_id] += 1
+                continue
+
+
+            ast1 = player1['ast']
+            reb1 = player1['reb']
+            pts1 = player1['pts']
+            if row['AST'] >= ast1 and row['REB'] >= reb1 and row['PTS'] >= pts1:
+                # print(game_id)
+                if game_id not in dates:
+                    dates[game_id] = 1
+                else:
+                    dates[game_id] += 1
+
+
+        for index, row in log2.iterrows():
+            game_id = row['Game_ID']
+            if game_id not in matches:
+                matches[game_id] = 1
+            else:
+                matches[game_id] += 1
+            if 'total' in player2 and isinstance(player2['total'], int):
+                if row['AST'] + row['REB'] + row['PTS'] >= player2['total']:
+                    game_id = row['Game_ID']
+                    if game_id not in dates:
+                        dates[game_id] = 1
+                    else:
+                        dates[game_id] += 1
+                continue
+
+            ast2 = player2['ast']
+            reb2 = player2['reb']
+            pts2 = player2['pts']
+            if row['AST'] >= ast2 and row['REB'] >= reb2 and row['PTS'] >= pts2:
+                if game_id not in dates:
+                    dates[game_id] = 1
+                else:
+                    dates[game_id] += 1
+
+
+        if player3:
+            for index, row in log3.iterrows():
+                game_id = row['Game_ID']
+                if game_id not in matches:
+                    matches[game_id] = 1
+                else:
+                    matches[game_id] += 1
+                if 'total' in player3 and isinstance(player3['total'], int):
+                    if row['AST'] + row['REB'] + row['PTS'] >= player3['total']:
+                        game_id = row['Game_ID']
+                        if game_id not in dates:
+                            dates[game_id] = 1
+                        else:
+                            dates[game_id] += 1
+                    continue
+                ast3 = player3['ast']
+                reb3 = player3['reb']
+                pts3 = player3['pts']
+
+                if row['AST'] >= ast3 and row['REB'] >= reb3 and row['PTS'] >= pts3:
+                    if game_id not in dates:
+                        dates[game_id] = 1
+                    else:
+                        dates[game_id] += 1
+        if player3:
+            for key in dates:
+                if dates[key] == 3:
+                    count+=1
+            for key in matches:
+                if matches[key] == 3:
+                    total+=1
+
+            return f'{count}/{total} = {count/total * 100}%'
+
+
+        for key in dates:
+            if dates[key] == 2:
+                count+=1
+        for key in matches:
+            if matches[key] == 2:
+                total+=1
+
+        if total == 0:
+            total+=1
+
+        return f'{count}/{total} = {count/total * 100}%'
+
+    def get_cat_averages(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']):
+        averages = {}
+        for cat in cats:
+            averages[cat] = logs[cat].mean()
+        return averages
+
+    def get_combined_cats(self):
+        pass
