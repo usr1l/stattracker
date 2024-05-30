@@ -51,6 +51,9 @@ class NBA:
             print(result['PERSON_ID'].values[0])
             return result['PERSON_ID'].values[0]
 
+    # def get_player_name_by_id(self, player_id):
+
+
     def get_id_by_team_name(self, team_name):
         if team_name == "":
             return ""
@@ -75,7 +78,6 @@ class NBA:
             return ""
 
     def get_player_by_name(self, player_name):
-
         # Search for the player name
         result = self.df[self.df['DISPLAY_FIRST_LAST'].str.contains(
             player_name, case=False, na=False)]
@@ -83,6 +85,16 @@ class NBA:
         # Check if the result is empty
         if result.empty:
             return f"No player found with the name: {player_name}"
+        else:
+            return [result['PERSON_ID'].values[0], result['DISPLAY_FIRST_LAST'].values[0]]
+
+    def get_player_by_id(self, player_id):
+        # Search for the player name
+        result = self.df[self.df['PERSON_ID'] == player_id]
+
+        # Check if the result is empty
+        if result.empty:
+            return f"No player found with the ID: {player_id}"
         else:
             return [result['PERSON_ID'].values[0], result['DISPLAY_FIRST_LAST'].values[0]]
 
