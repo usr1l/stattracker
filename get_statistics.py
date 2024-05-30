@@ -48,12 +48,12 @@ class NBAStats:
             num_games=10,
             home=False,
             away=False,
-            assists=None,
-            rebounds=None,
-            points=None,
-            steals=None,
-            blocks=None,
-            personal_fouls=None,
+            ast=None,
+            reb=None,
+            pts=None,
+            stl=None,
+            blk=None,
+            pf=None,
             threes_made=None,
             triple_double=None,
             double_double=None,
@@ -103,19 +103,19 @@ class NBAStats:
                 print(f"Error: {e}. Skipping season {season}.")
 
         # print(logs.columns)
-        # Filter by assists, rebounds, points, steals, blocks, triple-double, and double-double
-        if assists is not None:
-            logs = logs[logs['AST'].ge(assists)]
-        if rebounds is not None:
-            logs = logs[logs['REB'].ge(rebounds)]
-        if points is not None:
-            logs = logs[logs['PTS'].ge(points)]
-        if steals is not None:
-            logs = logs[logs['STL'].ge(steals)]
-        if blocks is not None:
-            logs = logs[logs['BLK'].ge(blocks)]
-        if personal_fouls is not None:
-            logs = logs[logs['PF'].ge(personal_fouls)]
+        # Filter by ast, reb, pts, stl, blk, triple-double, and double-double
+        if ast is not None:
+            logs = logs[logs['AST'].ge(ast)]
+        if reb is not None:
+            logs = logs[logs['REB'].ge(reb)]
+        if pts is not None:
+            logs = logs[logs['PTS'].ge(pts)]
+        if stl is not None:
+            logs = logs[logs['STL'].ge(stl)]
+        if blk is not None:
+            logs = logs[logs['BLK'].ge(blk)]
+        if pf is not None:
+            logs = logs[logs['PF'].ge(pf)]
         if threes_made is not None:
             logs = logs[logs['FG3M'].ge(threes_made)]
         if triple_double is True:
