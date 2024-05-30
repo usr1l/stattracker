@@ -79,11 +79,13 @@ class Analysis():
         new_num_logs = len(logs)
         return " + ".join(cats), new_num_logs/num_logs
 
-
-            # stl=None,
-            # blk=None,
-            # pf=None,
-            # threes_made=None,
-            # triple_double=None,
-            # double_double=None,
-            # win=None
+    def get_probability_stl_blk(self, logs, stl=None, blk=None, total=0):
+        cats = []
+        if stl is True:
+            cats.append('STL')
+        if blk is True:
+            cats.append('BLK')
+        num_logs=len(logs)
+        logs = logs[logs['STL'] + logs['BLK'] >= total]
+        new_num_logs=len(logs)
+        return " + ".join(cats), new_num_logs/num_logs
