@@ -133,7 +133,3 @@ class NBAStats:
         if num_games:
             return logs.head(num_games)
         return logs
-
-
-
-    # def get_team_games(self, team_id, num_games=10):

@@ -1,25 +1,31 @@
 import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
-
+import pandas as pd
 
 class DisplayCharts:
-    def plot_game_logs(self, logs):
-        categories = ['MIN', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA',
-                      'FT_PCT', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'PF',
-                      'PTS', 'PLUS_MINUS']
+    def plot_game_logs(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'PF']):
+        # Convert the GAME_DATE column to datetime format
+        logs['GAME_DATE'] = pd.to_datetime(logs['GAME_DATE'])
 
-        # create a figure and axis object
-        fig, ax = plt.subplots(
-            len(categories), 1, figsize=(10, 6*len(categories)))
+        # Plot the PTS column against the GAME_DATE column
+        for cat in cats:
+            plt.plot(logs['GAME_DATE'], logs[cat.upper()], label=cat)
 
-        # loop through each category and plot a line chart
-        for i, category in enumerate(categories):
-            ax[i].plot(logs['GAME_DATE'], logs[category], marker='o')
-            ax[i].set_title(category)
-            ax[i].set_xlabel('Date')
-            ax[i].set_ylabel(category)
+        # Set the title and labels
+        plt.title('Stats Over Time')
+        plt.xlabel('Date')
+        plt.ylabel('Number')
+        plt.legend(cats, loc='best')
 
-        # show the plot
-        plt.tight_layout()
+        # # create a table with the data_frame
+        # table_data = logs[cats].values
+        # table_col = cats
+        # table_rows = logs['GAME_DATE'].dt.strftime('%Y-%m-%d')
+
+        # # Create the table
+        # plt.table(cellText=table_data, rowLabels=table_rows, colLabels=table_col,
+        #           loc='bottom', bbox=[0, -0.5, 1, 0.5])
+
+        # Show the plot
         plt.show()
