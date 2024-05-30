@@ -8,6 +8,6 @@ from display_charts import DisplayCharts
 pd.set_option('display.max_columns', None)
 
 
-current_season_players = NBA('nba_players.csv')
-statistics = NBAStats()
-charts = DisplayCharts()
+nba_players = NBA('nba_players.csv')
+nba_statistics = NBAStats()
+nba_charts = DisplayCharts()
