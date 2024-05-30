@@ -40,6 +40,7 @@ class NBAStats:
         to_year = player_info['TO_YEAR'].values[0]
         return range(from_year, to_year + 1)
 
+    # matchup needs to be team abreviation, use function from get_players.py
     def get_player_statistics(
             self,
             player_id,
