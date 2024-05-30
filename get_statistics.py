@@ -3,8 +3,14 @@ from nba_api.stats.endpoints import playercareerstats, playergamelog, TeamGameLo
 from datetime import datetime
 
 CURRENT_SEASON = '2023-24'
+LAST_FIVE_SEASONS = ['2023-24', '2022-23', '2021-22', '2020-21', '2019-20']
 
 class NBAStats:
+    def sort_logs_by_date(self, logs):
+        logs['GAME_DATE'] = pd.to_datetime(logs['GAME_DATE'], format='%b %d, %Y')
+        logs = logs.sort_values(by='GAME_DATE', ascending=False)
+        return logs
+
     def get_player_career_stats(self, player_id):
         player_stats = playercareerstats.PlayerCareerStats(
             player_id=player_id)
@@ -38,7 +44,7 @@ class NBAStats:
             self,
             player_id,
             matchup="",
-            seasons=['2023-24', '2022-23', '2021-22', '2020-21'],
+            seasons=LAST_FIVE_SEASONS,
             num_games=10,
             home=False,
             away=False,
@@ -50,7 +56,8 @@ class NBAStats:
             personal_fouls=None,
             threes_made=None,
             triple_double=None,
-            double_double=None
+            double_double=None,
+            win=None
             ):
 
         if home:
@@ -90,8 +97,11 @@ class NBAStats:
                            gamelog_playoffs.loc[:, gamelog_playoffs.notna().any()],
                            gamelog_regular.loc[:, gamelog_regular.notna().any()]],
                           ignore_index=True)
+                logs = self.sort_logs_by_date(logs)
+
             except KeyError as e:
                 print(f"Error: {e}. Skipping season {season}.")
+
         # print(logs.columns)
         # Filter by assists, rebounds, points, steals, blocks, triple-double, and double-double
         if assists is not None:
@@ -114,13 +124,16 @@ class NBAStats:
             logs = logs[((logs['PTS'].ge(10) & logs['REB'].ge(10)) |
                          (logs['PTS'].ge(10) & logs['AST'].ge(10)) |
                          (logs['REB'].ge(10) & logs['AST'].ge(10)))]
-
-        # Sort by date
-        logs['GAME_DATE'] = pd.to_datetime(logs['GAME_DATE'], format='%b %d, %Y')
-        logs = logs.sort_values(by='GAME_DATE', ascending=False)
+        if win is not None:
+            if win is True:
+                logs = logs[logs['WL'] == 'W']
+            if win is False:
+                logs = logs[logs['WL'] == 'L']
 
         if num_games:
             return logs.head(num_games)
         return logs
+
+
 
     # def get_team_games(self, team_id, num_games=10):
