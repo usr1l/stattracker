@@ -52,13 +52,27 @@ class NBA:
             return result['PERSON_ID'].values[0]
 
     def get_id_by_team_name(self, team_name):
-        return self.teams[team_name.lower()][0]
+        if team_name == "":
+            return ""
+        elif self.teams[team_name.lower()]:
+            return self.teams[team_name.lower()][0]
+        else:
+            return ""
+    def get_team_abbreviation_by_name(self, team_name):
+        if team_name == "":
+            return ""
+        elif self.teams[team_name.lower()]:
+            return self.teams[team_name.lower()][2]
+        else:
+            return ""
 
     def get_full_team_name(self, team_name):
-        return self.teams[team_name.lower()][1]
-
-    def get_team_abbreviation_by_name(self, team_name):
-        return self.teams[team_name.lower()][2]
+        if team_name == "":
+            return ""
+        elif self.teams[team_name.lower()]:
+            return self.teams[team_name.lower()][1]
+        else:
+            return ""
 
     def get_player_by_name(self, player_name):
 
