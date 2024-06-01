@@ -58,6 +58,7 @@ class Analysis():
 
         return " + ".join(cats), new_num_logs, num_logs, new_num_logs/num_logs
 
+
     def get_probability_pts_reb_ast(
             self,
             logs,
@@ -66,7 +67,6 @@ class Analysis():
             pts=None,
             total=0
             ):
-
         cats = []
         if ast is True:
             cats.append('AST')
@@ -79,7 +79,16 @@ class Analysis():
         new_num_logs = len(logs)
         return " + ".join(cats), f'{new_num_logs/num_logs * 100} %'
 
-    def get_probability_stl_blk(self, logs, stl=None, blk=None, total=0):
+
+    def get_probability_stl_blk(
+            self,
+            logs,
+            stl=None,
+            blk=None,
+            total=0
+            ):
+        """
+        """
         cats = []
         if stl is True:
             cats.append('STL')
@@ -90,118 +99,82 @@ class Analysis():
         new_num_logs=len(logs)
         return " + ".join(cats), f'{new_num_logs/num_logs * 100} %'
 
-    def get_combination_probability(self, log1, log2, player1, player2, log3=None, player3=None):
-        # for tracking which dates fit for all
+
+    def get_combination_probability(self, logs=[], players=[]):
+        """
+        logs: list of pandas.DataFrame
+        players: list of dict
+
+        use 'total_pra' key for points, rebounds, assists category combination totals, total must be a number to work
+        use 'total_sb' for steals, blocks totals, must be number
+
+        dates: {} which dates match for players achieving their goals
+        matches: {} which games match for players
+        """
+        if len(players) != len(logs) or not players or not logs:
+            return 'Players and logs mismatch, check your inputs'
         dates = {}
-        # for tracking how many they played in together
         matches = {}
         count = 0
         total = 0
-        num_games = len(log1)
-        for index, row in log1.iterrows():
-            game_id = row['Game_ID']
-            if game_id not in matches:
-                matches[game_id] = 1
-            else:
-                matches[game_id] += 1
-            if 'total' in player1 and isinstance(player1['total'], int):
-                if row['AST'] + row['REB'] + row['PTS'] >= player1['total']:
-                    game_id = row['Game_ID']
-                    if game_id not in dates:
-                        dates[game_id] = 1
-                    else:
-                        dates[game_id] += 1
-                continue
+        num_players = len(players)
 
-
-            ast1 = player1['ast']
-            reb1 = player1['reb']
-            pts1 = player1['pts']
-            if row['AST'] >= ast1 and row['REB'] >= reb1 and row['PTS'] >= pts1:
-                # print(game_id)
-                if game_id not in dates:
-                    dates[game_id] = 1
-                else:
-                    dates[game_id] += 1
-
-
-        for index, row in log2.iterrows():
-            game_id = row['Game_ID']
-            if game_id not in matches:
-                matches[game_id] = 1
-            else:
-                matches[game_id] += 1
-            if 'total' in player2 and isinstance(player2['total'], int):
-                if row['AST'] + row['REB'] + row['PTS'] >= player2['total']:
-                    game_id = row['Game_ID']
-                    if game_id not in dates:
-                        dates[game_id] = 1
-                    else:
-                        dates[game_id] += 1
-                continue
-
-            ast2 = player2['ast']
-            reb2 = player2['reb']
-            pts2 = player2['pts']
-            if row['AST'] >= ast2 and row['REB'] >= reb2 and row['PTS'] >= pts2:
-                if game_id not in dates:
-                    dates[game_id] = 1
-                else:
-                    dates[game_id] += 1
-
-
-        if player3:
-            for index, row in log3.iterrows():
+        for i in range(num_players):
+            player = players[i]
+            log = logs[i]
+            for index, row in log.iterrows():
                 game_id = row['Game_ID']
                 if game_id not in matches:
                     matches[game_id] = 1
                 else:
                     matches[game_id] += 1
-                if 'total' in player3 and isinstance(player3['total'], int):
-                    if row['AST'] + row['REB'] + row['PTS'] >= player3['total']:
+                # points, rebounds, assists total
+                if 'total_pra' in player and isinstance(player['total_pra'], int):
+                    if row['AST'] + row['REB'] + row['PTS'] >= player['total_pra']:
                         game_id = row['Game_ID']
                         if game_id not in dates:
                             dates[game_id] = 1
                         else:
                             dates[game_id] += 1
-                    continue
-                ast3 = player3['ast']
-                reb3 = player3['reb']
-                pts3 = player3['pts']
-
-                if row['AST'] >= ast3 and row['REB'] >= reb3 and row['PTS'] >= pts3:
-                    if game_id not in dates:
-                        dates[game_id] = 1
-                    else:
-                        dates[game_id] += 1
-        if player3:
-            for key in dates:
-                if dates[key] == 3:
-                    count+=1
-            for key in matches:
-                if matches[key] == 3:
-                    total+=1
-
-            return f'{count}/{total} = {count/total * 100}%'
-
+                # steals and blocks total
+                elif 'total_sb' in player and isinstance(player['total_sb'], int):
+                    if row['STL'] + row['BLK'] >= player['total_sb']:
+                        game_id = row['Game_ID']
+                        if game_id not in dates:
+                            dates[game_id] = 1
+                        else:
+                            dates[game_id] += 1
+                else:
+                    ast = player['ast']
+                    reb = player['reb']
+                    pts = player['pts']
+                    stl = player['stl']
+                    blk = player['blk']
+                    if row['AST'] >= ast and row['REB'] >= reb and row['PTS'] >= pts and row['STL'] >= stl and row['BLK'] >= blk:
+                        if game_id not in dates:
+                            dates[game_id] = 1
+                        else:
+                            dates[game_id] += 1
 
         for key in dates:
-            if dates[key] == 2:
+            if dates[key] == num_players:
                 count+=1
         for key in matches:
-            if matches[key] == 2:
+            if matches[key] == num_players:
                 total+=1
 
         if total == 0:
             total+=1
 
-        return f'{count}/{total} = {count/total * 100}%'
+        return f'Times Achieved / Total Games, {count}/{total} = {count/(total if total > 0 else 1) * 100} %'
+
 
     def get_cat_averages(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']):
         averages = {}
         for cat in cats:
             averages[cat] = logs[cat].mean()
         return averages
+
 
     def get_combined_cats(self):
         pass
