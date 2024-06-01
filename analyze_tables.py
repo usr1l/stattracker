@@ -100,13 +100,15 @@ class Analysis():
         return " + ".join(cats), f'{new_num_logs/num_logs * 100} %'
 
 
-    def get_combination_probability(self, logs=[], players=[]):
+    def get_combination_probability(self, logs=[], players=[], combine='all'):
         """
         logs: list of pandas.DataFrame
         players: list of dict
 
         use 'total_pra' key for points, rebounds, assists category combination totals, total must be a number to work
         use 'total_sb' for steals, blocks totals, must be number
+
+        combine: use 'all' for all cats, 'sb' for steals and blocks and 'pra' for points, rebounds, assists
 
         dates: {} which dates match for players achieving their goals
         matches: {} which games match for players
@@ -129,7 +131,7 @@ class Analysis():
                 else:
                     matches[game_id] += 1
                 # points, rebounds, assists total
-                if 'total_pra' in player and isinstance(player['total_pra'], int):
+                if combine == 'pra' and isinstance(player['total_pra'], int):
                     if row['AST'] + row['REB'] + row['PTS'] >= player['total_pra']:
                         game_id = row['Game_ID']
                         if game_id not in dates:
@@ -137,7 +139,7 @@ class Analysis():
                         else:
                             dates[game_id] += 1
                 # steals and blocks total
-                elif 'total_sb' in player and isinstance(player['total_sb'], int):
+                elif combine == 'sb' and isinstance(player['total_sb'], int):
                     if row['STL'] + row['BLK'] >= player['total_sb']:
                         game_id = row['Game_ID']
                         if game_id not in dates:
