@@ -58,7 +58,7 @@ class Analysis():
 
         new_num_logs=len(logs)
 
-        return " + ".join(cats), new_num_logs, num_logs, new_num_logs/num_logs
+        return " + ".join(cats), new_num_logs, num_logs, f'{(new_num_logs/num_logs)*100} %'
 
 
     def get_probability_pts_reb_ast(
