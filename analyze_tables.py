@@ -203,6 +203,10 @@ class Analysis():
         return probability_df
 
 
+    def get_combination_tables(self, logs=[]):
+        pass
+
+
     def get_cat_averages(self, logs, cats=CATS):
         averages = {}
         for cat in cats:
