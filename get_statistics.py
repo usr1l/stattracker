@@ -40,12 +40,13 @@ class NBAStats:
         to_year = player_info['TO_YEAR'].values[0]
         return range(from_year, to_year + 1)
 
+    # matchup needs to be team abreviation, use function from get_players.py
     def get_player_statistics(
             self,
             player_id,
             matchup="",
             seasons=LAST_FIVE_SEASONS,
-            num_games=10,
+            num_games=20,
             home=False,
             away=False,
             ast=None,
@@ -100,7 +101,8 @@ class NBAStats:
                 logs = self.sort_logs_by_date(logs)
 
             except KeyError as e:
-                print(f"Error: {e}. Skipping season {season}.")
+                print(f"Error: Skipping season {season}.")
+                # print(f"Error: {e}. Skipping season {season}.")
 
         # print(logs.columns)
         # Filter by ast, reb, pts, stl, blk, triple-double, and double-double

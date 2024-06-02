@@ -1,5 +1,7 @@
 import pandas as pd
 
+CATS=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']
+
 class Analysis():
     def get_cats_probability(
             self,
@@ -56,7 +58,8 @@ class Analysis():
 
         new_num_logs=len(logs)
 
-        return " + ".join(cats), new_num_logs, num_logs, new_num_logs/num_logs
+        return " + ".join(cats), new_num_logs, num_logs, f'{(new_num_logs/num_logs)*100} %'
+
 
     def get_probability_pts_reb_ast(
             self,
@@ -66,7 +69,6 @@ class Analysis():
             pts=None,
             total=0
             ):
-
         cats = []
         if ast is True:
             cats.append('AST')
@@ -79,7 +81,16 @@ class Analysis():
         new_num_logs = len(logs)
         return " + ".join(cats), f'{new_num_logs/num_logs * 100} %'
 
-    def get_probability_stl_blk(self, logs, stl=None, blk=None, total=0):
+
+    def get_probability_stl_blk(
+            self,
+            logs,
+            stl=None,
+            blk=None,
+            total=0
+            ):
+        """
+        """
         cats = []
         if stl is True:
             cats.append('STL')
@@ -90,118 +101,194 @@ class Analysis():
         new_num_logs=len(logs)
         return " + ".join(cats), f'{new_num_logs/num_logs * 100} %'
 
-    def get_combination_probability(self, log1, log2, player1, player2, log3=None, player3=None):
-        # for tracking which dates fit for all
+
+    def get_combination_probability(self, logs=[], players=[], combine='all'):
+        """
+        logs: list of pandas.DataFrame
+        players: list of dict
+
+        use 'total_pra' key for points, rebounds, assists category combination totals, total must be a number to work
+        use 'total_sb' for steals, blocks totals, must be number
+
+        combine: use 'all' for all cats, 'sb' for steals and blocks and 'pra' for points, rebounds, assists
+
+        dates: {} which dates match for players achieving their goals
+        matches: {} which games match for players
+        """
+        if len(players) != len(logs) or not players or not logs:
+            return 'Players and logs mismatch, check your inputs'
         dates = {}
-        # for tracking how many they played in together
         matches = {}
         count = 0
         total = 0
-        num_games = len(log1)
-        for index, row in log1.iterrows():
-            game_id = row['Game_ID']
-            if game_id not in matches:
-                matches[game_id] = 1
-            else:
-                matches[game_id] += 1
-            if 'total' in player1 and isinstance(player1['total'], int):
-                if row['AST'] + row['REB'] + row['PTS'] >= player1['total']:
-                    game_id = row['Game_ID']
-                    if game_id not in dates:
-                        dates[game_id] = 1
-                    else:
-                        dates[game_id] += 1
-                continue
+        num_players = len(players)
 
-
-            ast1 = player1['ast']
-            reb1 = player1['reb']
-            pts1 = player1['pts']
-            if row['AST'] >= ast1 and row['REB'] >= reb1 and row['PTS'] >= pts1:
-                # print(game_id)
-                if game_id not in dates:
-                    dates[game_id] = 1
-                else:
-                    dates[game_id] += 1
-
-
-        for index, row in log2.iterrows():
-            game_id = row['Game_ID']
-            if game_id not in matches:
-                matches[game_id] = 1
-            else:
-                matches[game_id] += 1
-            if 'total' in player2 and isinstance(player2['total'], int):
-                if row['AST'] + row['REB'] + row['PTS'] >= player2['total']:
-                    game_id = row['Game_ID']
-                    if game_id not in dates:
-                        dates[game_id] = 1
-                    else:
-                        dates[game_id] += 1
-                continue
-
-            ast2 = player2['ast']
-            reb2 = player2['reb']
-            pts2 = player2['pts']
-            if row['AST'] >= ast2 and row['REB'] >= reb2 and row['PTS'] >= pts2:
-                if game_id not in dates:
-                    dates[game_id] = 1
-                else:
-                    dates[game_id] += 1
-
-
-        if player3:
-            for index, row in log3.iterrows():
+        for i in range(num_players):
+            player = players[i]
+            log = logs[i]
+            for index, row in log.iterrows():
                 game_id = row['Game_ID']
                 if game_id not in matches:
                     matches[game_id] = 1
                 else:
                     matches[game_id] += 1
-                if 'total' in player3 and isinstance(player3['total'], int):
-                    if row['AST'] + row['REB'] + row['PTS'] >= player3['total']:
+                # points, rebounds, assists total
+                if combine == 'pra' and isinstance(player['total_pra'], int):
+                    if row['AST'] + row['REB'] + row['PTS'] >= player['total_pra']:
                         game_id = row['Game_ID']
                         if game_id not in dates:
                             dates[game_id] = 1
                         else:
                             dates[game_id] += 1
-                    continue
-                ast3 = player3['ast']
-                reb3 = player3['reb']
-                pts3 = player3['pts']
-
-                if row['AST'] >= ast3 and row['REB'] >= reb3 and row['PTS'] >= pts3:
-                    if game_id not in dates:
-                        dates[game_id] = 1
-                    else:
-                        dates[game_id] += 1
-        if player3:
-            for key in dates:
-                if dates[key] == 3:
-                    count+=1
-            for key in matches:
-                if matches[key] == 3:
-                    total+=1
-
-            return f'{count}/{total} = {count/total * 100}%'
-
+                # steals and blocks total
+                elif combine == 'sb' and isinstance(player['total_sb'], int):
+                    if row['STL'] + row['BLK'] >= player['total_sb']:
+                        game_id = row['Game_ID']
+                        if game_id not in dates:
+                            dates[game_id] = 1
+                        else:
+                            dates[game_id] += 1
+                else:
+                    ast = player['ast']
+                    reb = player['reb']
+                    pts = player['pts']
+                    stl = player['stl']
+                    blk = player['blk']
+                    if row['AST'] >= ast and row['REB'] >= reb and row['PTS'] >= pts and row['STL'] >= stl and row['BLK'] >= blk:
+                        if game_id not in dates:
+                            dates[game_id] = 1
+                        else:
+                            dates[game_id] += 1
 
         for key in dates:
-            if dates[key] == 2:
+            if dates[key] == num_players:
                 count+=1
         for key in matches:
-            if matches[key] == 2:
+            if matches[key] == num_players:
                 total+=1
 
         if total == 0:
             total+=1
 
-        return f'{count}/{total} = {count/total * 100}%'
+        return f'Times Achieved / Total Games, {count}/{total} = {count/(total if total > 0 else 1) * 100} %'
 
-    def get_cat_averages(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']):
+
+    def get_probability_table(self, logs, cats=CATS, graph_size=51):
+
+        # drop the index after sorting, to create a new default index order
+        start_data = [['0.0 %' for _ in range(0, graph_size)] for _ in cats]
+
+        probability_df = pd.DataFrame(start_data, columns=list(range(0, graph_size)))
+        probability_df.index = [category.upper() for category in cats]
+        # probability_df[cat] = probability_df[cat].astype(float)
+        # print(probability_df)
+        num_games = len(logs)
+        for cat in cats:
+            cat = cat.upper()
+            sorted_logs = logs.sort_values(by=cat, ascending=True).reset_index(drop=True)
+
+            # [x, y] order
+            col_val = sorted_logs[cat][0]
+            for i in range(num_games):
+                if sorted_logs[cat][i] < col_val+1:
+                    continue
+                else:
+                    rounded = round(((num_games-i)/num_games)*100, 2)
+                    # .loc[] reverses coordinate values to [y, x]
+                    probability_df.loc[cat, col_val] = f'{rounded} %'
+                    col_val+=1
+                    if col_val > graph_size:
+                        break
+
+        return probability_df
+
+
+    def get_probability_table_combos(self, logs=[], cats=CATS, graph_size=31):
+        if len(logs) < 2:
+            return 'Insufficient entries'
+        graph_size=graph_size*len(logs)
+
+        start_data = [['0.0 %' for _ in range(0, graph_size)] for _ in cats]
+
+        probability_df = pd.DataFrame(start_data, columns=list(range(0, graph_size)))
+        probability_df.index = [category.upper() for category in cats]
+
+        matches = {}
+        num_players = len(logs)
+        fg3m = []
+        pts = []
+        reb = []
+        ast = []
+        stl = []
+        blk = []
+
+        for i in range(len(logs)):
+            log=logs[i]
+            for index, row in log.iterrows():
+                game_id = row['Game_ID']
+                if game_id not in matches:
+                    matches[game_id] = {
+                        'num':1,
+                        'accum': {
+                            'FG3M': row['FG3M'],
+                            'PTS': row['PTS'],
+                            'REB': row['REB'],
+                            'AST': row['AST'],
+                            'STL': row['STL'],
+                            'BLK': row['BLK']
+                    }}
+                else:
+                    matches[game_id]['num'] += 1
+                    for cat in cats:
+                        cat=cat.upper()
+                        matches[game_id]['accum'][cat] += row[cat]
+                    if matches[game_id]['num'] == num_players:
+                        fg3m.append(matches[game_id]['accum']['FG3M'])
+                        pts.append(matches[game_id]['accum']['PTS'])
+                        reb.append(matches[game_id]['accum']['REB'])
+                        ast.append(matches[game_id]['accum']['AST'])
+                        stl.append(matches[game_id]['accum']['STL'])
+                        blk.append(matches[game_id]['accum']['BLK'])
+
+        if not pts:
+            return 'No matches'
+
+        fg3m.sort()
+        pts.sort()
+        reb.sort()
+        ast.sort()
+        stl.sort()
+        blk.sort()
+        num_games = len(pts)
+        categories = {
+            'FG3M': fg3m,
+            'PTS': pts,
+            'REB': reb,
+            'AST': ast,
+            'STL': stl,
+            'BLK': blk
+        }
+
+        for key, cat in categories.items():
+            start_val=cat[0]
+            for i in range(num_games):
+                if cat[i] < start_val+1:
+                    continue
+                else:
+                    rounded = round(((num_games-i)/num_games)*100, 2)
+                    probability_df.loc[key, start_val] = f'{rounded} %'
+                    start_val+=1
+                    if start_val > graph_size:
+                        break
+
+        return probability_df
+
+    def get_cat_averages(self, logs, cats=CATS):
         averages = {}
         for cat in cats:
             averages[cat] = logs[cat].mean()
         return averages
+
 
     def get_combined_cats(self):
         pass

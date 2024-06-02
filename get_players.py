@@ -1,4 +1,4 @@
-from nba_api.stats.static import teams, players
+from nba_api.stats.static import teams
 from nba_api.stats.endpoints import commonallplayers, CommonTeamRoster
 import pandas as pd
 
