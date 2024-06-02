@@ -1,5 +1,7 @@
 import pandas as pd
 
+CATS=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']
+
 class Analysis():
     def get_cats_probability(
             self,
@@ -171,7 +173,37 @@ class Analysis():
         return f'Times Achieved / Total Games, {count}/{total} = {count/(total if total > 0 else 1) * 100} %'
 
 
-    def get_cat_averages(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']):
+    def get_probability_table(self, logs, cats=CATS, graph_size=51):
+
+        # drop the index after sorting, to create a new default index order
+        start_data = [['0.0 %' for _ in range(0, graph_size)] for _ in cats]
+
+        probability_df = pd.DataFrame(start_data, columns=list(range(0, graph_size)))
+        probability_df.index = [category.upper() for category in cats]
+        # probability_df[cat] = probability_df[cat].astype(float)
+        # print(probability_df)
+        num_games = len(logs)
+        for cat in cats:
+            cat = cat.upper()
+            sorted_logs = logs.sort_values(by=cat, ascending=True).reset_index(drop=True)
+
+            # [x, y] order
+            col_val = sorted_logs[cat][0]
+            for i in range(num_games):
+                if sorted_logs[cat][i] < col_val+1:
+                    continue
+                else:
+                    rounded = round(((num_games-i)/num_games)*100, 2)
+                    # .loc[] reverses coordinate values to [y, x]
+                    probability_df.loc[cat, col_val] = f'{rounded} %'
+                    col_val+=1
+                    if col_val > graph_size:
+                        break
+
+        return probability_df
+
+
+    def get_cat_averages(self, logs, cats=CATS):
         averages = {}
         for cat in cats:
             averages[cat] = logs[cat].mean()

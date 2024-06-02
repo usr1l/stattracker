@@ -3,14 +3,14 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from get_players import get_nba_players_csv, NBA
-from app import statistics, current_season_players, charts
+from app import nba_statistics, nba_analysis
 pd.set_option('display.max_columns', None)
 
 
 # current_season_players = NBA('nba_players.csv')
 # statistics = NBAStats()
 
-tatum = current_season_players.get_player_by_name('jayson tatum')
+# tatum = current_season_players.get_player_by_name('jayson tatum')
 # celtics_players = current_season_players.get_players_by_team('celtics')
 # print(get_player_career_stats(tatum[0]))
 # print(list(celtics_players.values()))
@@ -27,13 +27,18 @@ tatum = current_season_players.get_player_by_name('jayson tatum')
 # print(statistics.get_player_games_last_n_seasons_against_team(s
 # print(statistics.get_player_games_last_n_seasons_against_team(
 # tatum[0], matchup=current_season_players.get_team_abbreviation_by_name('heat'), away=True))
-print(statistics.get_player_games_last_n_seasons_against_team(
-  current_season_players.get_player_by_name('pascal siakam'),
-  matchup=current_season_players.get_team_abbreviation_by_name('nuggets'),
-  num_games=30,
-  away=True,
-  home=False))
+# print(statistics.get_player_games_last_n_seasons_against_team(
+#   current_season_players.get_player_by_name('pascal siakam'),
+#   matchup=current_season_players.get_team_abbreviation_by_name('nuggets'),
+#   num_games=30,
+#   away=True,
+#   home=False))
 
 # GAMES = statistics.get_player_games_last_n_seasons_against_team(
 #     tatum[0], matchup=current_season_players.get_team_abbreviation_by_name('heat'), num_games=90)
 # charts.plot_game_logs(GAMES)
+log = pd.read_csv('players_csv/celtics/tatum.csv')
+# print(log)
+
+print(nba_analysis.get_probability_table(log, cats=['PTS']))
+# print(log)
