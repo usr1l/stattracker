@@ -215,6 +215,7 @@ class Analysis():
 
         matches = {}
         num_players = len(logs)
+        fg3m = []
         pts = []
         reb = []
         ast = []
@@ -242,6 +243,7 @@ class Analysis():
                         cat=cat.upper()
                         matches[game_id]['accum'][cat] += row[cat]
                     if matches[game_id]['num'] == num_players:
+                        fg3m.append(matches[game_id]['accum']['FG3M'])
                         pts.append(matches[game_id]['accum']['PTS'])
                         reb.append(matches[game_id]['accum']['REB'])
                         ast.append(matches[game_id]['accum']['AST'])
@@ -251,6 +253,7 @@ class Analysis():
         if not pts:
             return 'No matches'
 
+        fg3m.sort()
         pts.sort()
         reb.sort()
         ast.sort()
@@ -258,6 +261,7 @@ class Analysis():
         blk.sort()
         num_games = len(pts)
         categories = {
+            'FG3M': fg3m,
             'PTS': pts,
             'REB': reb,
             'AST': ast,
