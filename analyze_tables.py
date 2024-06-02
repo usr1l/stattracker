@@ -203,9 +203,81 @@ class Analysis():
         return probability_df
 
 
-    def get_combination_tables(self, logs=[]):
-        pass
+    def get_probability_table_combos(self, logs=[], cats=CATS, graph_size=31):
+        if len(logs) < 2:
+            return 'Insufficient entries'
+        graph_size=graph_size*len(logs)
 
+        start_data = [['0.0 %' for _ in range(0, graph_size)] for _ in cats]
+
+        probability_df = pd.DataFrame(start_data, columns=list(range(0, graph_size)))
+        probability_df.index = [category.upper() for category in cats]
+
+        matches = {}
+        num_players = len(logs)
+        pts = []
+        reb = []
+        ast = []
+        stl = []
+        blk = []
+
+        for i in range(len(logs)):
+            log=logs[i]
+            for index, row in log.iterrows():
+                game_id = row['Game_ID']
+                if game_id not in matches:
+                    matches[game_id] = {
+                        'num':1,
+                        'accum': {
+                            'FG3M': row['FG3M'],
+                            'PTS': row['PTS'],
+                            'REB': row['REB'],
+                            'AST': row['AST'],
+                            'STL': row['STL'],
+                            'BLK': row['BLK']
+                    }}
+                else:
+                    matches[game_id]['num'] += 1
+                    for cat in cats:
+                        cat=cat.upper()
+                        matches[game_id]['accum'][cat] += row[cat]
+                    if matches[game_id]['num'] == num_players:
+                        pts.append(matches[game_id]['accum']['PTS'])
+                        reb.append(matches[game_id]['accum']['REB'])
+                        ast.append(matches[game_id]['accum']['AST'])
+                        stl.append(matches[game_id]['accum']['STL'])
+                        blk.append(matches[game_id]['accum']['BLK'])
+
+        if not pts:
+            return 'No matches'
+
+        pts.sort()
+        reb.sort()
+        ast.sort()
+        stl.sort()
+        blk.sort()
+        num_games = len(pts)
+        categories = {
+            'PTS': pts,
+            'REB': reb,
+            'AST': ast,
+            'STL': stl,
+            'BLK': blk
+        }
+
+        for key, cat in categories.items():
+            start_val=cat[0]
+            for i in range(num_games):
+                if cat[i] < start_val+1:
+                    continue
+                else:
+                    rounded = round(((num_games-i)/num_games)*100, 2)
+                    probability_df.loc[key, start_val] = f'{rounded} %'
+                    start_val+=1
+                    if start_val > graph_size:
+                        break
+
+        return probability_df
 
     def get_cat_averages(self, logs, cats=CATS):
         averages = {}
