@@ -94,10 +94,11 @@ class NBAStats:
                         logs = pd.concat([logs, gamelog_regular])
 
                 # Concatenate the DataFrames, excluding any empty or all-NA columns
-                logs = pd.concat([logs.loc[:, logs.notna().any()],
-                           gamelog_playoffs.loc[:, gamelog_playoffs.notna().any()],
-                           gamelog_regular.loc[:, gamelog_regular.notna().any()]],
-                          ignore_index=True)
+                else:
+                    logs = pd.concat([logs.loc[:, logs.notna().any()],
+                               gamelog_playoffs.loc[:, gamelog_playoffs.notna().any()],
+                               gamelog_regular.loc[:, gamelog_regular.notna().any()]],
+                              ignore_index=True)
                 logs = self.sort_logs_by_date(logs)
 
             except KeyError as e:
