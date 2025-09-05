@@ -1,2 +1,5 @@
 .venv/
 Pipfile.lock
+.csv
+.ipynb
+__pycache__/
