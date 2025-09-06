@@ -3,3 +3,4 @@ Pipfile.lock
 .csv
 .ipynb
 __pycache__/
+test_script.py
