@@ -4,3 +4,4 @@ Pipfile.lock
 .ipynb
 __pycache__/
 test_script.py
+.env
