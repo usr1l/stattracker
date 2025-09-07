@@ -3,7 +3,7 @@ from nba_api.stats.endpoints import playercareerstats, playergamelog, TeamGameLo
 from datetime import datetime
 
 CURRENT_SEASON = '2023-24'
-LAST_FIVE_SEASONS = ['2023-24', '2022-23', '2021-22', '2020-21', '2019-20']
+PREVIOUS_SEASONS = ['2023-24', '2022-23', '2021-22', '2020-21', '2019-20']
 
 class NBAStats:
     def sort_logs_by_date(self, logs):
@@ -45,7 +45,7 @@ class NBAStats:
             self,
             player_id,
             matchup="",
-            seasons=LAST_FIVE_SEASONS,
+            seasons=PREVIOUS_SEASONS,
             num_games=20,
             home=False,
             away=False,
