@@ -17,5 +17,5 @@ from app import nba_players, nba_statistics, nba_charts, nba_analysis
 7. Import `env` variables. <pre>from dotenv import dotenv_values
 config = dotenv_values(".env")</pre>
 Update the current year and other env variables, and be sure to follow the formatting.
-8. Create a csv with all current NBA players, or skip this step if csv is already up to date. First, import the `get_nba_players_csv` function from `app.py`. <pre>from get_players import get_nba_players_csv</pre>Then, run the function. A csv file with all currently active players and their corresponding Player ID's will be created inn the `players_csv` directory.
-9.
+8. Create a csv with all current NBA players, or skip this step if csv is already up to date. First, import the `get_nba_players_csv` function from `app.py`. <pre>from get_players import get_nba_players_csv</pre>Then, run the function. A csv file names `nba_players` with all currently active players and their corresponding Player ID's will be created in the `players_csv` directory.
+9. Create create a new instance of the NBA class using the newly generated csv file.<pre>nba_players = NBA("players_csv/nba_players.csv")</pre>
