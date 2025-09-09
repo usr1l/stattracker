@@ -5,7 +5,9 @@ StatTracker is a fast and intuitive tool for exploring NBA data directly within 
 ## ⚙️ Setup
 1. Clone this repository. <pre>git clone https://github.com/yourusername/stattracker.git</pre>
 
+
 2. Navigate to the root directory and install dependencies. <pre>pip install -r requirements.txt</pre>
+
 
 3. Launch the application in VSCode from the root directory. <pre>code .</pre>
 
@@ -19,6 +21,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from app import nba_players, nba_statistics, nba_charts, nba_analysis
 </pre>
+
 
 7. Import `env` variables. <pre>from dotenv import dotenv_values
 config = dotenv_values(".env")</pre>Update the current year and other env variables, and be sure to follow the formatting.
