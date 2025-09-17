@@ -2,12 +2,15 @@
 
 StatTracker is a fast and intuitive tool for exploring NBA data directly within a Jupyter notebook. Built on top of the official NBA API, it makes it simple to view, track, and compare both player and team statistics without the hassle of complex setup. Whether you’re analyzing performance trends, preparing fantasy insights, or just keeping up with your favorite players, StatTracker gives you a streamlined way to access and interact with NBA stats in real time.
 
+![NBA API](https://img.shields.io/badge/API-NBA-orange?logo=nba&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Notebook-Jupyter-F37626?logo=jupyter&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.9-blue?logo=python&logoColor=white)
+
+
 ## ⚙️ Setup
 1. Clone this repository. <pre>git clone https://github.com/yourusername/stattracker.git</pre>
 
-
 2. Navigate to the root directory and install dependencies. <pre>pip install -r requirements.txt</pre>
-
 
 3. Launch the application in VSCode from the root directory. <pre>code .</pre>
 
@@ -22,7 +25,6 @@ import matplotlib.pyplot as plt
 from app import nba_players, nba_statistics, nba_charts, nba_analysis
 </pre>
 
-
 7. Import `env` variables. <pre>from dotenv import dotenv_values
 config = dotenv_values(".env")</pre>Update the current year and other env variables, and be sure to follow the formatting.
 
@@ -36,7 +38,8 @@ nba_analysis = Analysis()
 </pre>
 
 ## How to Use
-After creating an instance,
+When using the NBA API, players will mainly be identified using a player ID. To simplify this process, a ```get_id_by_player_name()``` method can be used to retrieve a player's ID by using their name as an argument. <pre>nba_players.get_id_by_player_name('LeBron James')</pre>
+The method call above will return the player ID ```2544```. The spelling of the name is not
 
 ## Features
 1.

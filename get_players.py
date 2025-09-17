@@ -7,10 +7,14 @@ from nba_api.stats.endpoints import commonallplayers, CommonTeamRoster
 
 
 def get_nba_players_csv():
+    """
+    fetch a csv file of all current NBA players and their corresponding player ids
+    """
     players = commonallplayers.CommonAllPlayers(is_only_current_season=1)
     players_df = players.get_data_frames()[0]
     players_df[['PERSON_ID', 'DISPLAY_FIRST_LAST']].to_csv(
         'players_csv/nba_players.csv', index=False)
+
 
 
 def get_nba_teams():
