@@ -32,14 +32,22 @@ config = dotenv_values(".env")</pre>Update the current year and other env variab
 
 9. Create create a new instance of the NBA class using the newly generated csv file.<pre>nba_players = NBA("players_csv/nba_players.csv")</pre>
 
-10. Create new instances for the NBAStats, Analysis, and DisplayCharts classes as well. <pre>nba_statistics = NBA()
+10. Create new instances for the NBAStats, Analysis, and DisplayCharts classes as well. <pre>nba_statistics = NBAStats()
 nba_charts = DisplayCharts()
 nba_analysis = Analysis()
 </pre>
 
 ## How to Use
 When using the NBA API, players will mainly be identified using a player ID. To simplify this process, a ```get_id_by_player_name()``` method can be used to retrieve a player's ID by using their name as an argument. <pre>nba_players.get_id_by_player_name('LeBron James')</pre>
-The method call above will return the player ID ```2544```. The spelling of the name is not
+
+The method call above will return the player ID ```2544```. The spelling of the name is not case sensitive. Likewise, the ```get_player_by_name()``` has a similar funcitonality, but returns both the ID and full player name in a list.
 
 ## Features
-1.
+1. Refresh the Player List<pre>from get_players import get_nba_players_csv
+get_nba_players_csv()</pre>
+
+2. Look up a player<pre>player_id = nba.get_player_id("LeBron James")
+→ e.g., 2544
+</pre>
+
+3. Look up a player's stats<pre></pre>
