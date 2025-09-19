@@ -3,15 +3,21 @@ from nba_api.stats.endpoints import playercareerstats, playergamelog, TeamGameLo
 from datetime import datetime
 
 CURRENT_SEASON = '2023-24'
-LAST_FIVE_SEASONS = ['2023-24', '2022-23', '2021-22', '2020-21', '2019-20']
+PREVIOUS_SEASONS = ['2023-24', '2022-23', '2021-22', '2020-21', '2019-20']
 
 class NBAStats:
     def sort_logs_by_date(self, logs):
+        """
+        return logs after sorting by date
+        """
         logs['GAME_DATE'] = pd.to_datetime(logs['GAME_DATE'], format='%b %d, %Y')
         logs = logs.sort_values(by='GAME_DATE', ascending=False)
         return logs
 
     def get_player_career_stats(self, player_id):
+        """
+        search for a player using their player id, and return career stat log
+        """
         player_stats = playercareerstats.PlayerCareerStats(
             player_id=player_id)
 
@@ -20,7 +26,10 @@ class NBAStats:
         player_stats_df = player_stats.get_data_frames()[0]
         return player_stats_df
 
-    def get_team_players_career_stats(self, player_ids):
+    def get_players_career_stats(self, player_ids):
+        """
+        search for players using their player ids, and return career stat logs
+        """
         stats_df = []
         for player_id in player_ids:
             player_stats = playercareerstats.PlayerCareerStats(
@@ -34,6 +43,9 @@ class NBAStats:
         return stats_df
 
     def get_player_seasons(self, player_id):
+        """
+        search for a player using their player id, and return all seasons played
+        """
         player_info = commonplayerinfo.CommonPlayerInfo(
             player_id=player_id).get_data_frames()[0]
         from_year = player_info['FROM_YEAR'].values[0]
@@ -45,7 +57,7 @@ class NBAStats:
             self,
             player_id,
             matchup="",
-            seasons=LAST_FIVE_SEASONS,
+            seasons=PREVIOUS_SEASONS,
             num_games=20,
             home=False,
             away=False,
@@ -60,6 +72,18 @@ class NBAStats:
             double_double=None,
             win=None
             ):
+        """
+        search for a player using their player id, and return game logs based on filters
+        1. matchup: filter by team abreviation, e.g. "LAL"
+        2. seasons: list of seasons to search through, e.g. ['2023-24', '2022-23']
+        3. num_games: number of games to return, default is 20
+        4. home: boolean, if True, filter by home games only
+        5. away: boolean, if True, filter by away games only
+        6. ast, reb, pts, stl, blk, pf, threes_made: filter by minimum number of assists, rebounds, points, steals, blocks, personal fouls, and three pointers made
+        7. triple_double: boolean, if True, filter by games with a triple double
+        8. double_double: boolean, if True, filter by games with a double double
+        9. win: boolean, if True, filter by games won, if False, filter by games lost
+        """
 
         if home:
             matchup = "vs. " + matchup
@@ -107,6 +131,8 @@ class NBAStats:
 
         # print(logs.columns)
         # Filter by ast, reb, pts, stl, blk, triple-double, and double-double
+        stats = ["PTS", "REB", "AST", "STL", "BLK"]
+
         if ast is not None:
             logs = logs[logs['AST'].ge(ast)]
         if reb is not None:
@@ -121,12 +147,10 @@ class NBAStats:
             logs = logs[logs['PF'].ge(pf)]
         if threes_made is not None:
             logs = logs[logs['FG3M'].ge(threes_made)]
-        if triple_double is True:
-            logs = logs[logs['PTS'].ge(10) & logs['REB'].ge(10) & logs['AST'].ge(10)]
         if double_double is True:
-            logs = logs[((logs['PTS'].ge(10) & logs['REB'].ge(10)) |
-                         (logs['PTS'].ge(10) & logs['AST'].ge(10)) |
-                         (logs['REB'].ge(10) & logs['AST'].ge(10)))]
+            logs = logs[logs[stats].ge(10).sum(axis=1) >= 2]
+        if triple_double is True:
+            logs = logs[logs[stats].ge(10).sum(axis=1) >= 3]
         if win is not None:
             if win is True:
                 logs = logs[logs['WL'] == 'W']

@@ -1,15 +1,20 @@
+import pandas as pd
+import os
 from nba_api.stats.static import teams
 from nba_api.stats.endpoints import commonallplayers, CommonTeamRoster
-import pandas as pd
 
-CURRENT_SEASON = '2023-24'
+# CURRENT_SEASON = '2023-24'
 
 
 def get_nba_players_csv():
+    """
+    fetch a csv file of all current NBA players and their corresponding player ids
+    """
     players = commonallplayers.CommonAllPlayers(is_only_current_season=1)
     players_df = players.get_data_frames()[0]
     players_df[['PERSON_ID', 'DISPLAY_FIRST_LAST']].to_csv(
-        'nba_players.csv', index=False)
+        'players_csv/nba_players.csv', index=False)
+
 
 
 def get_nba_teams():
@@ -30,16 +35,25 @@ class NBA:
         self.teams = get_nba_teams()
 
     def check_csv_file(self):
+        """
+        Check which CSV file is bound to current instance
+        """
         if self.csv_file is None:
             return "No CSV file found. Please provide a CSV file."
         else:
             return self.csv_file
 
     def change_csv_file(self, csv_file):
+        """
+        change the current csv file
+        """
         self.csv_file = csv_file
         self.df = pd.read_csv(csv_file)
 
     def get_id_by_player_name(self, player_name):
+        """
+        search for a player by his id
+        """
         # Search for the player name
         result = self.df[self.df['DISPLAY_FIRST_LAST'].str.contains(
             player_name, case=False, na=False)]
@@ -54,6 +68,9 @@ class NBA:
 
 
     def get_id_by_team_name(self, team_name):
+        """
+        search for a team by its name
+        """
         if team_name == "":
             return ""
         elif self.teams[team_name.lower()]:
@@ -62,6 +79,9 @@ class NBA:
             return ""
 
     def get_team_abbreviation_by_name(self, team_name):
+        """
+        search for team by its abbrev
+        """
         if team_name == "":
             return ""
         elif self.teams[team_name.lower()]:
@@ -70,6 +90,9 @@ class NBA:
             return ""
 
     def get_full_team_name(self, team_name):
+        """
+        return the full team name
+        """
         if team_name == "":
             return ""
         elif self.teams[team_name.lower()]:
@@ -78,6 +101,9 @@ class NBA:
             return ""
 
     def get_player_by_name(self, player_name):
+        """
+        search for a player with their name, returns the full player name and corresponding player id
+        """
         # Search for the player name
         result = self.df[self.df['DISPLAY_FIRST_LAST'].str.contains(
             player_name, case=False, na=False)]
@@ -89,6 +115,9 @@ class NBA:
             return [result['PERSON_ID'].values[0], result['DISPLAY_FIRST_LAST'].values[0]]
 
     def get_player_by_id(self, player_id):
+        """
+        search for a player with the player id
+        """
         # Search for the player name
         result = self.df[self.df['PERSON_ID'] == player_id]
 
@@ -99,9 +128,12 @@ class NBA:
             return [result['PERSON_ID'].values[0], result['DISPLAY_FIRST_LAST'].values[0]]
 
     def get_players_by_team(self, team_name):
+        """
+        return all the players on a certain team
+        """
         team_id = self.teams[team_name.lower()][0]
         team_roster = CommonTeamRoster(team_id=team_id,
-                                       season=CURRENT_SEASON)
+                                       season=os.environ.get("CURRENT_SEASON"))
         team_roster_df = team_roster.get_data_frames()[0]
 
         # returns [{'PLAYER_ID': 2544, 'PLAYER': 'LeBron James'}, ...]

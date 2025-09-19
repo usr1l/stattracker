@@ -27,7 +27,6 @@ jupyter-core = "==5.7.2"
 kiwisolver = "==1.4.5"
 matplotlib = "==3.9.0"
 matplotlib-inline = "==0.1.7"
-nba-api = "==1.4.1"
 nest-asyncio = "==1.6.0"
 numpy = "==1.26.4"
 packaging = "==24.0"
@@ -61,6 +60,8 @@ wcwidth = "==0.2.13"
 zipp = "==3.18.2"
 py-ball = "*"
 cairosvg = "*"
+python-dotenv = "*"
+nba-api = "*"
 
 [dev-packages]
 

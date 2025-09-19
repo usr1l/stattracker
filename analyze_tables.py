@@ -18,6 +18,21 @@ class Analysis():
             win=None
             ):
 
+        """
+        filters through logs in a dataframe by specific statistical categories, and calculates the percentage of total games that meet the criteria
+        1. logs: provide a dataframe
+        2. ast: minimum assists
+        3. reb: minimum rebounds
+        4. pts: minimum points
+        5. stl: minimum steals
+        6. blk: minimum blocks
+        7. pf: minimum personal fouls
+        8. threes_made: minimum three pointers made
+        9. triple_double: boolean, if True, filter by games with a triple double
+        10. double_double: boolean, if True, filter by games with a double double
+        11. win: boolean, if True, filter by games won, if False,
+        """
+
         cats = []
         num_logs = len(logs)
         if ast is not None:
@@ -69,6 +84,15 @@ class Analysis():
             pts=None,
             total=0
             ):
+        """
+        filter through logs by points, rebounds, assists, and/or combination totals
+        1. logs: provide a dataframe
+        2. ast: boolean, if True, include assists in the total
+        3. reb: boolean, if True, include rebounds in the total
+        4. pts: boolean, if True, include points in the total
+        5. total: minimum total of the selected categories
+        returns the categories used and the percentage of games that meet the criteria
+        """
         cats = []
         if ast is True:
             cats.append('AST')
@@ -90,6 +114,12 @@ class Analysis():
             total=0
             ):
         """
+        filter through logs by steals, blocks, and/or combination totals
+        1. logs: provide a dataframe
+        2. stl: boolean, if True, include steals in the total
+        3. blk: boolean, if True, include blocks in the total
+        4. total: minimum total of the selected categories
+        returns the categories used and the percentage of games that meet the criteria
         """
         cats = []
         if stl is True:
