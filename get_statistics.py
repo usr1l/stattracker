@@ -131,6 +131,8 @@ class NBAStats:
 
         # print(logs.columns)
         # Filter by ast, reb, pts, stl, blk, triple-double, and double-double
+        stats = ["PTS", "REB", "AST", "STL", "BLK"]
+
         if ast is not None:
             logs = logs[logs['AST'].ge(ast)]
         if reb is not None:
@@ -145,12 +147,10 @@ class NBAStats:
             logs = logs[logs['PF'].ge(pf)]
         if threes_made is not None:
             logs = logs[logs['FG3M'].ge(threes_made)]
-        if triple_double is True:
-            logs = logs[logs['PTS'].ge(10) & logs['REB'].ge(10) & logs['AST'].ge(10)]
         if double_double is True:
-            logs = logs[((logs['PTS'].ge(10) & logs['REB'].ge(10)) |
-                         (logs['PTS'].ge(10) & logs['AST'].ge(10)) |
-                         (logs['REB'].ge(10) & logs['AST'].ge(10)))]
+            logs = logs[logs[stats].ge(10).sum(axis=1) >= 2]
+        if triple_double is True:
+            logs = logs[logs[stats].ge(10).sum(axis=1) >= 3]
         if win is not None:
             if win is True:
                 logs = logs[logs['WL'] == 'W']

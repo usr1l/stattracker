@@ -44,13 +44,17 @@ When using the NBA API, players will mainly be identified using a player ID. To 
 The method call above will return the player ID ```2544```. The spelling of the name is not case sensitive. Likewise, the ```get_player_by_name()``` has a similar funcitonality, but returns both the ID and full player name in a list.
 
 ## Features
-1. Refresh the Player List<pre>from get_players import get_nba_players_cs
+1. Refresh the Player List.<pre>from get_players import get_nba_players_cs
 get_nba_players_csv()</pre>
 
-2. Look up a player's player ID<pre>player_id = nba.get_player_id("LeBron James")
+2. Look up a player's player ID.<pre>player_id = nba.get_player_id("LeBron James")
 ==> 2544
 </pre>
 
-3. Look up a player's career stats<pre>nba_statistics.get_player_career_stats(2544)</pre>
+3. Look up a player's career stats.<pre>nba_statistics.get_player_career_stats(2544)</pre>
 
-4. Look up and filter through a player's stats<pre>nba_statistics.get_player_statistics(player_id=2544, matchup="LAL",pts=10,reb=5,ast=5)</pre>
+4. Look up and filter through a player's stats. Use stat parameters such as points, rebounds, and assists.<pre>nba_statistics.get_player_statistics(player_id=2544, matchup="LAL",pts=10,reb=5,ast=5,double_double=True)</pre>
+
+5. Filter and calculate the rate of which an athlete puts up certain statlines. <pre>lebron =
+player_stats = {pts:10, ast:2, win:True}
+nba_analysis.get_cat_probability(player_stats)</pre>
