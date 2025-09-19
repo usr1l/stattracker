@@ -9,7 +9,7 @@ pd.set_option('display.max_columns', None)
 # CURRENT_SEASON = '2023-24'
 # PREVIOUS_SEASONS = ['2023-24', '2022-23', '2021-22', '2020-21', '2019-20']
 
-# nba_players = NBA('players_csv/nba_players.csv')
-# nba_statistics = NBAStats()
-# nba_charts = DisplayCharts()
-# nba_analysis = Analysis()
+nba_players = NBA('players_csv/nba_players.csv')
+nba_statistics = NBAStats()
+nba_charts = DisplayCharts()
+nba_analysis = Analysis()

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b713ff3e5f129aa575052562d30a26709b65e5b07cdae622e93ddb4c0a309ed9"
+            "sha256": "786a2195562ed2172d2bb14918b8cb2130b51b0aac9cfee870fb3ae9cc992f92"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -649,12 +649,12 @@
         },
         "nba-api": {
             "hashes": [
-                "sha256:1c936c0d48ffbb91fec1a345f703254125269e9ec001b733200de82aa793762e",
-                "sha256:dc421ed4a6fa5928cb4b26a4fa473d29c4f83866274b2bb86bc841e9508592a2"
+                "sha256:ae8df0ea4e88578b4d8d24b041ef5af7476946330fdbb96d3c79bd33de1e5cad",
+                "sha256:c2fb3abdf8998cc5fb68814f61fb10b4e39f2b566f06eda51d8b0f7f947dc1bd"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8' and python_version < '4.0'",
-            "version": "==1.4.1"
+            "version": "==1.5.2"
         },
         "nest-asyncio": {
             "hashes": [

@@ -36,6 +36,7 @@ config = dotenv_values(".env")</pre>Update the current year and other env variab
 nba_charts = DisplayCharts()
 nba_analysis = Analysis()
 </pre>
+If you created multiple cells, run them in order.
 
 ## How to Use
 When using the NBA API, players will mainly be identified using a player ID. To simplify this process, a ```get_id_by_player_name()``` method can be used to retrieve a player's ID by using their name as an argument. <pre>nba_players.get_id_by_player_name('LeBron James')</pre>
@@ -43,11 +44,13 @@ When using the NBA API, players will mainly be identified using a player ID. To 
 The method call above will return the player ID ```2544```. The spelling of the name is not case sensitive. Likewise, the ```get_player_by_name()``` has a similar funcitonality, but returns both the ID and full player name in a list.
 
 ## Features
-1. Refresh the Player List<pre>from get_players import get_nba_players_csv
+1. Refresh the Player List<pre>from get_players import get_nba_players_cs
 get_nba_players_csv()</pre>
 
-2. Look up a player<pre>player_id = nba.get_player_id("LeBron James")
-→ e.g., 2544
+2. Look up a player's player ID<pre>player_id = nba.get_player_id("LeBron James")
+==> 2544
 </pre>
 
-3. Look up a player's stats<pre></pre>
+3. Look up a player's career stats<pre>nba_statistics.get_player_career_stats(2544)</pre>
+
+4. Look up and filter through a player's stats<pre>nba_statistics.get_player_statistics(player_id=2544, matchup="LAL",pts=10,reb=5,ast=5)</pre>
