@@ -1,11 +1,33 @@
 # 🏀 StatTracker
 
-StatTracker is a fast and intuitive tool for exploring NBA data directly within a Jupyter notebook. Built on top of the official NBA API, it makes it simple to view, track, and compare both player and team statistics without the hassle of complex setup. Whether you’re analyzing performance trends, preparing fantasy insights, or just keeping up with your favorite players, StatTracker gives you a streamlined way to access and interact with NBA stats in real time.
+StatTracker is a fast and intuitive tool for exploring NBA data directly within a Jupyter notebook. Built on top of the official NBA API, it makes it simple to view, track, and compare both player and team statistics without the hassle of complex setup. Whether you’re analyzing performance trends, preparing fantasy insights, or just keeping up with your favorite players, StatTracker gives you a streamlined way to access and interact with NBA stats in real time. Future versions will expand on support for WNBA statistics as well.
 
 ![NBA API](https://img.shields.io/badge/API-NBA-orange?logo=nba&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Notebook-Jupyter-F37626?logo=jupyter&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.9-blue?logo=python&logoColor=white)
 
+## 🗂️ Project Structure
+
+<pre>stattracker/
+├─ players_csv/               # Generated CSVs of NBA players (IDs, names, etc.)
+├─ wnba_csv/                  # (Optional) Generated CSVs for WNBA support
+├─ notebooks/
+│  └─ nba.ipynb               # Example/working notebook
+├─ app.py                     # Convenience imports / high-level helpers used in README
+├─ get_players.py             # Build/refresh player directory (IDs, names) → CSV
+├─ get_statistics.py          # Query player/team stats (season totals, game logs, splits)
+├─ analyze_tables.py          # Analysis utilities (e.g., double/triple-double logic, probabilities)
+├─ display_charts.py          # Plotting helpers (matplotlib time series, comparisons, etc.)
+├─ display_tables.py          # Pretty-print / tabular display helpers
+├─ wnba.py                    # WNBA-specific helpers (*in development*)
+├─ config.py                  # Config/env handling (season, API timing, paths)
+├─ requirements.txt           # Python dependencies
+├─ Pipfile                    # Pipenv manifest (alt to requirements.txt)
+├─ Pipfile.lock               # Pipenv lockfile
+├─ test_script.py             # Quick local test harness / usage examples
+├─ csv_file.csv               # Sample CSV (placeholder/demo)
+└─ .gitignore                 # Project ignores
+</pre>
 
 ## ⚙️ Setup
 1. Clone this repository. <pre>git clone https://github.com/yourusername/stattracker.git</pre>
@@ -67,4 +89,26 @@ player_stats = {
 nba_analysis.get_cat_probability(lebron, **player_stats)
 ==> ('10 AST + 0 REB + 15 PTS + 0 STL + 0 BLK + W', 5, 20, '25.0 %')</pre>
 
-6. Calculate the combined probability of multiple players
+6. Compute how often multiple players hit a chosen target in the same game (identified by Game_ID) across their logs. <pre>luka = nba_statistics.get_player_statistics("luka")
+kyrie = nba_statistics.get_player_statics("kyrie")
+player_1 = {
+  'pts': 15,
+  'reb': 0,
+  'ast': 10,
+  'stl': 0,
+  'blk': 0,
+  'total_pra': 0,
+  'total_sb': 0
+}
+player_2 = {
+  'pts': 15,
+  'reb': 0,
+  'ast': 0,
+  'stl': 0,
+  'blk': 0,
+  'total_pra': 0,
+  'total_sb': 0
+}
+nba_analysis.get_combination_probability([kyrie, luka], [player_1, player_2], combine='all')
+==> 'Times Achieved / Total Games, 1/57 = 1.7543859649122806 %'
+</pre>

@@ -141,9 +141,6 @@ class Analysis():
         use 'total_sb' for steals, blocks totals, must be number
 
         combine: use 'all' for all cats, 'sb' for steals and blocks and 'pra' for points, rebounds, assists
-
-        dates: {} which dates match for players achieving their goals
-        matches: {} which games match for players
         """
         if len(players) != len(logs) or not players or not logs:
             return 'Players and logs mismatch, check your inputs'
