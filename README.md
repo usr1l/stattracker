@@ -1,10 +1,15 @@
 # 🏀 StatTracker
 
-StatTracker is a fast and intuitive tool for exploring NBA data directly within a Jupyter notebook. Built on top of the official NBA API, it makes it simple to view, track, and compare both player and team statistics without the hassle of complex setup. Whether you’re analyzing performance trends, preparing fantasy insights, or just keeping up with your favorite players, StatTracker gives you a streamlined way to access and interact with NBA stats in real time. Future versions will expand on support for WNBA statistics as well.
+StatTracker is a fast and intuitive tool for exploring NBA data directly within a Jupyter notebook. Built on top of the official NBA API, it makes it simple to view, track, and compare both player and team statistics without the hassle of complex setup. Whether you’re analyzing performance trends, preparing fantasy insights, or just keeping up with your favorite players, StatTracker gives you a streamlined way to access and interact with NBA stats in real time. Future versions will expand on support for WNBA statistics.
 
 ![NBA API](https://img.shields.io/badge/API-NBA-orange?logo=nba&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Notebook-Jupyter-F37626?logo=jupyter&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.9-blue?logo=python&logoColor=white)
+
+## 🧰 Requirements
+- Python 3.9+
+- pandas, matplotlib, requests, python-dotenv
+- Jupyter (Lab or Notebook)
 
 ## 🗂️ Project Structure
 
@@ -65,7 +70,7 @@ When using the NBA API, players will mainly be identified using a player ID. To 
 
 The method call above will return the player ID ```2544```. The spelling of the name is not case sensitive. Likewise, the ```get_player_by_name()``` has a similar funcitonality, but returns both the ID and full player name in a list.
 
-## Features
+## Highlight Features
 1. Refresh the Player List.<pre>from get_players import get_nba_players_cs
 get_nba_players_csv()</pre>
 
@@ -112,3 +117,6 @@ player_2 = {
 nba_analysis.get_combination_probability([kyrie, luka], [player_1, player_2], combine='all')
 ==> 'Times Achieved / Total Games, 1/57 = 1.7543859649122806 %'
 </pre>
+
+7. Build a probability table (DataFrame) showing, for several stat categories, the empirical probability that the combined total across multiple players in the same game is at least a given integer threshold. <pre>nba_analysis.get_probability_table_combos(logs=[luka, kyrie])</pre>
+![alt text](readme/image.png)
