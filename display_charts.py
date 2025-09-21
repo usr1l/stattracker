@@ -39,7 +39,7 @@ class DisplayCharts:
 
         # Set the x-axis tick labels
         ax.set_xticks(x_pos + len(cats) / 2 * width)
-
+        ax.set_xticklabels(logs['GAME_DATE'].dt.strftime('%Y-%m-%d'), rotation=45, ha='right')
         # Set the title and labels
         ax.set_title(title)
         ax.set_xlabel(xlabel)
