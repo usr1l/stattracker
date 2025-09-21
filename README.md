@@ -55,6 +55,16 @@ get_nba_players_csv()</pre>
 
 4. Look up and filter through a player's stats. Use stat parameters such as points, rebounds, and assists.<pre>nba_statistics.get_player_statistics(player_id=2544, matchup="LAL",pts=10,reb=5,ast=5,double_double=True)</pre>
 
-5. Filter and calculate the rate of which an athlete puts up certain statlines. <pre>lebron =
-player_stats = {pts:10, ast:2, win:True}
-nba_analysis.get_cat_probability(player_stats)</pre>
+5. Filter and calculate the rate of which an athlete puts up certain statlines through a specified set of games. <pre>lebron = nba_statistics.get_player_statistics(2544)
+player_stats = {
+  'pts': 15,
+  'reb': 0,
+  'ast': 10,
+  'stl': 0,
+  'blk': 0,
+  'win': True
+ }
+nba_analysis.get_cat_probability(lebron, **player_stats)
+==> ('10 AST + 0 REB + 15 PTS + 0 STL + 0 BLK + W', 5, 20, '25.0 %')</pre>
+
+6. Calculate the combined probability of multiple players
