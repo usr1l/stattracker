@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 class DisplayCharts:
-    def plot_game_logs_linegraph(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']):
+    def plot_game_logs_linegraph(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK'], title="Stats over time", xlabel="Date", ylabel="Number"):
         # Convert the GAME_DATE column to datetime format
         logs['GAME_DATE'] = pd.to_datetime(logs['GAME_DATE'])
 
@@ -14,13 +14,13 @@ class DisplayCharts:
             plt.plot(logs['GAME_DATE'], logs[cat.upper()], label=cat)
 
         # Set the title and labels
-        plt.title('Stats Over Time')
-        plt.xlabel('Date')
-        plt.ylabel('Number')
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
         plt.legend(cats, loc='best')
         plt.show()
 
-    def plot_game_logs_barchart(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK']):
+    def plot_game_logs_barchart(self, logs, cats=['FG3M', 'PTS', 'REB', 'AST', 'STL', 'BLK'], title="Stats over time", xlabel="Date", ylabel="Number"):
         # Convert the GAME_DATE column to datetime format
         logs['GAME_DATE'] = pd.to_datetime(logs['GAME_DATE'])
 
@@ -41,8 +41,8 @@ class DisplayCharts:
         ax.set_xticks(x_pos + len(cats) / 2 * width)
 
         # Set the title and labels
-        ax.set_title('Stats Over Time')
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Number')
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
         ax.legend(cats, loc='best')
         plt.show()

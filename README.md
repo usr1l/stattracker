@@ -120,3 +120,5 @@ nba_analysis.get_combination_probability([kyrie, luka], [player_1, player_2], co
 
 7. Build a probability table (DataFrame) showing, for several stat categories, the empirical probability that the combined total across multiple players in the same game is at least a given integer threshold. <pre>nba_analysis.get_probability_table_combos(logs=[luka, kyrie])</pre>
 ![alt text](readme/image.png)
+
+8. <pre></pre>
