@@ -127,3 +127,33 @@ nba_analysis.get_combination_probability([kyrie, luka], [player_1, player_2], co
   title='Luka Doncic Last 10 Games PTS, AST, REB'
   )</pre>
 ![alt text](readme/bar.png)
+
+## Future Implementation Ideas
+### Notebook UI Controls (Dropdowns & Toggles)
+- Deliverables:
+  - Player/team dropdowns, opponent pickers, season/season-type toggles.
+  - Sliders for “last N games”, checkboxes for stats (PTS/REB/AST/STL/BLK).
+- Implementation Notes:
+  - Use ipywidgets for controls; wire callbacks to re-render charts/tables.
+  - Preset panels: “Recent vs Season”, “Versus Team”, “Same-Game Combos”.
+  - Export current view → PNG/CSV with a single button.
+
+### AI-Assisted Analysis
+- Deliverables:
+  - “Explain this chart” summaries for recent/season splits.
+  - Outlier detection (rolling z-scores) with plain-English notes.
+  - Similar-player finder (cosine similarity on normalized stat vectors).
+- Implementation Notes:
+  - Start classic: scikit-learn (PCA/KMeans), z-score/EMA for signals.
+  - 2uyrOptional LLM layer for narrative summaries fed by computed stats (no raw PII).
+  - Helper: ai.describe_trend(df, cols=['PTS','AST'], window=10) returns a short paragraph + key bullets.
+
+### Live Game Mode (Real-Time Updates)
+- Deliverables:
+  - Live box score poller with configurable interval (e.g., 10–30s).
+  - Real-time dashboard: running totals, pace estimates, hit-rate projections for combos.
+  - “Alert when threshold reached” (e.g., PRA ≥ 35).
+- Implementation Notes:
+  - Polling + retry/backoff with browser-like headers; cache last payload to compute deltas.
+  - Threaded/async updater that emits events to notebook widgets; safe stop/start.
+  - Respect rate limits; expose API_WAIT_SECONDS and LIVE_REFRESH_SECONDS in .env.
