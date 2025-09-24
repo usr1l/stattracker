@@ -1,11 +1,38 @@
 # 🏀 StatTracker
 
-StatTracker is a fast and intuitive tool for exploring NBA data directly within a Jupyter notebook. Built on top of the official NBA API, it makes it simple to view, track, and compare both player and team statistics without the hassle of complex setup. Whether you’re analyzing performance trends, preparing fantasy insights, or just keeping up with your favorite players, StatTracker gives you a streamlined way to access and interact with NBA stats in real time.
+StatTracker is a fast and intuitive tool for exploring NBA data directly within a Jupyter notebook. Built on top of the official NBA API, it makes it simple to view, track, and compare both player and team statistics without the hassle of complex setup. Whether you’re analyzing performance trends, preparing fantasy insights, or just keeping up with your favorite players, StatTracker gives you a streamlined way to access and interact with NBA stats in real time. Future versions will expand on support for WNBA statistics.
 
 ![NBA API](https://img.shields.io/badge/API-NBA-orange?logo=nba&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Notebook-Jupyter-F37626?logo=jupyter&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.9-blue?logo=python&logoColor=white)
 
+## 🧰 Requirements
+- Python 3.9+
+- pandas, matplotlib, requests, python-dotenv
+- Jupyter (Lab or Notebook)
+
+## 🗂️ Project Structure
+
+<pre>stattracker/
+├─ players_csv/               # Generated CSVs of NBA players (IDs, names, etc.)
+├─ wnba_csv/                  # (Optional) Generated CSVs for WNBA support
+├─ notebooks/
+│  └─ nba.ipynb               # Example/working notebook
+├─ app.py                     # Convenience imports / high-level helpers used in README
+├─ get_players.py             # Build/refresh player directory (IDs, names) → CSV
+├─ get_statistics.py          # Query player/team stats (season totals, game logs, splits)
+├─ analyze_tables.py          # Analysis utilities (e.g., double/triple-double logic, probabilities)
+├─ display_charts.py          # Plotting helpers (matplotlib time series, comparisons, etc.)
+├─ display_tables.py          # Pretty-print / tabular display helpers
+├─ wnba.py                    # WNBA-specific helpers (*in development*)
+├─ config.py                  # Config/env handling (season, API timing, paths)
+├─ requirements.txt           # Python dependencies
+├─ Pipfile                    # Pipenv manifest (alt to requirements.txt)
+├─ Pipfile.lock               # Pipenv lockfile
+├─ test_script.py             # Quick local test harness / usage examples
+├─ csv_file.csv               # Sample CSV (placeholder/demo)
+└─ .gitignore                 # Project ignores
+</pre>
 
 ## ⚙️ Setup
 1. Clone this repository. <pre>git clone https://github.com/yourusername/stattracker.git</pre>
@@ -43,7 +70,7 @@ When using the NBA API, players will mainly be identified using a player ID. To 
 
 The method call above will return the player ID ```2544```. The spelling of the name is not case sensitive. Likewise, the ```get_player_by_name()``` has a similar funcitonality, but returns both the ID and full player name in a list.
 
-## Features
+## Highlight Features
 1. Refresh the Player List.<pre>from get_players import get_nba_players_cs
 get_nba_players_csv()</pre>
 
@@ -55,6 +82,78 @@ get_nba_players_csv()</pre>
 
 4. Look up and filter through a player's stats. Use stat parameters such as points, rebounds, and assists.<pre>nba_statistics.get_player_statistics(player_id=2544, matchup="LAL",pts=10,reb=5,ast=5,double_double=True)</pre>
 
-5. Filter and calculate the rate of which an athlete puts up certain statlines. <pre>lebron =
-player_stats = {pts:10, ast:2, win:True}
-nba_analysis.get_cat_probability(player_stats)</pre>
+5. Filter and calculate the rate of which an athlete puts up certain statlines through a specified set of games. <pre>lebron = nba_statistics.get_player_statistics(2544)
+player_stats = {
+  'pts': 15,
+  'reb': 0,
+  'ast': 10,
+  'stl': 0,
+  'blk': 0,
+  'win': True
+ }
+nba_analysis.get_cat_probability(lebron, **player_stats)
+==> ('10 AST + 0 REB + 15 PTS + 0 STL + 0 BLK + W', 5, 20, '25.0 %')</pre>
+
+6. Compute how often multiple players hit a chosen target in the same game (identified by Game_ID) across their logs. <pre>luka = nba_statistics.get_player_statistics("luka")
+kyrie = nba_statistics.get_player_statics("kyrie")
+player_1 = {
+  'pts': 15,
+  'reb': 0,
+  'ast': 10,
+  'stl': 0,
+  'blk': 0,
+  'total_pra': 0,
+  'total_sb': 0
+}
+player_2 = {
+  'pts': 15,
+  'reb': 0,
+  'ast': 0,
+  'stl': 0,
+  'blk': 0,
+  'total_pra': 0,
+  'total_sb': 0
+}
+nba_analysis.get_combination_probability([kyrie, luka], [player_1, player_2], combine='all')
+==> 'Times Achieved / Total Games, 1/57 = 1.7543859649122806 %'
+</pre>
+
+7. Build a probability table (DataFrame) showing, for several stat categories, the empirical probability that the combined total across multiple players in the same game is at least a given integer threshold. <pre>nba_analysis.get_probability_table_combos(logs=[luka, kyrie])</pre>
+![alt text](readme/image.png)
+
+8. Plot graphs to better visualize and compare in-game statistics over a period of games.<pre>nba_charts.plot_game_logs_barchart(
+  luka.head(10),
+  cats=['PTS', 'AST', 'REB'],
+  title='Luka Doncic Last 10 Games PTS, AST, REB'
+  )</pre>
+![alt text](readme/bar.png)
+
+## Future Implementation Ideas
+### Notebook UI Controls (Dropdowns & Toggles)
+- Deliverables:
+  - Player/team dropdowns, opponent pickers, season/season-type toggles.
+  - Sliders for “last N games”, checkboxes for stats (PTS/REB/AST/STL/BLK).
+- Implementation Notes:
+  - Use ipywidgets for controls; wire callbacks to re-render charts/tables.
+  - Preset panels: “Recent vs Season”, “Versus Team”, “Same-Game Combos”.
+  - Export current view → PNG/CSV with a single button.
+
+### AI-Assisted Analysis
+- Deliverables:
+  - “Explain this chart” summaries for recent/season splits.
+  - Outlier detection (rolling z-scores) with plain-English notes.
+  - Similar-player finder (cosine similarity on normalized stat vectors).
+- Implementation Notes:
+  - Start classic: scikit-learn (PCA/KMeans), z-score/EMA for signals.
+  - 2uyrOptional LLM layer for narrative summaries fed by computed stats (no raw PII).
+  - Helper: ai.describe_trend(df, cols=['PTS','AST'], window=10) returns a short paragraph + key bullets.
+
+### Live Game Mode (Real-Time Updates)
+- Deliverables:
+  - Live box score poller with configurable interval (e.g., 10–30s).
+  - Real-time dashboard: running totals, pace estimates, hit-rate projections for combos.
+  - “Alert when threshold reached” (e.g., PRA ≥ 35).
+- Implementation Notes:
+  - Polling + retry/backoff with browser-like headers; cache last payload to compute deltas.
+  - Threaded/async updater that emits events to notebook widgets; safe stop/start.
+  - Respect rate limits; expose API_WAIT_SECONDS and LIVE_REFRESH_SECONDS in .env.
