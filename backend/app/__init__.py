@@ -1,0 +1,21 @@
+"""Flask application factory."""
+from flask import Flask
+from flask_cors import CORS
+
+from app.api.players import bp as players_bp
+from app.api.stats import bp as stats_bp
+from app.api.analysis import bp as analysis_bp
+
+
+def create_app() -> Flask:
+    app = Flask(__name__)
+    CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173"])
+    app.register_blueprint(players_bp)
+    app.register_blueprint(stats_bp)
+    app.register_blueprint(analysis_bp)
+
+    @app.route("/health")
+    def health():
+        return {"status": "ok"}
+
+    return app
