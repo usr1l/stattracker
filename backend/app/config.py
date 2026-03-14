@@ -1,6 +1,5 @@
-"""Configuration loaded from .env at project root."""
+"""Configuration. Seasons loaded from season module (computed on startup)."""
 import os
-import ast
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,13 +8,11 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
-CURRENT_SEASON = os.environ.get("CURRENT_SEASON", "2025-26")
-os.environ["CURRENT_SEASON"] = CURRENT_SEASON  # Ensure get_players uses our config
-_PREVIOUS_SEASONS_STR = os.environ.get("PREVIOUS_SEASONS", "['2025-26', '2024-25', '2023-24', '2022-23', '2021-22']")
-try:
-    PREVIOUS_SEASONS = ast.literal_eval(_PREVIOUS_SEASONS_STR)
-except (ValueError, SyntaxError):
-    PREVIOUS_SEASONS = ["2025-26", "2024-25", "2023-24", "2022-23", "2021-22"]
+# Seasons: loaded from file (written by refresh_seasons at startup)
+from season import load_seasons
+
+CURRENT_SEASON, PREVIOUS_SEASONS = load_seasons()
+os.environ["CURRENT_SEASON"] = CURRENT_SEASON  # For get_players.get_players_by_team
 
 # Cache
 INSTANCE_PATH = Path(__file__).resolve().parent.parent / "instance"

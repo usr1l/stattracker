@@ -6,3 +6,6 @@ __pycache__/
 test_script.py
 .env
 backend/instance/cache.db
+backend/instance/seasons.json
+backend/instance/market.db
+backend/instance/models/

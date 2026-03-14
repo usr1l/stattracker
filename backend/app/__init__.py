@@ -5,7 +5,8 @@ from flask_cors import CORS
 from app.api.players import bp as players_bp
 from app.api.stats import bp as stats_bp
 from app.api.analysis import bp as analysis_bp
-
+from app.api.market import bp as market_bp
+from app.api.predictions import bp as predictions_bp
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -13,6 +14,8 @@ def create_app() -> Flask:
     app.register_blueprint(players_bp)
     app.register_blueprint(stats_bp)
     app.register_blueprint(analysis_bp)
+    app.register_blueprint(market_bp)
+    app.register_blueprint(predictions_bp)
 
     @app.route("/health")
     def health():

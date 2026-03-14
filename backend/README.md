@@ -35,3 +35,12 @@ Server runs at http://localhost:5000
 - `POST /api/analysis/probability` - Stat line probability
 - `POST /api/analysis/combination` - Same-game combo probability
 - `POST /api/analysis/probability-table` - Probability table for combos
+
+### Prediction & Market Endpoints (Phase 1)
+- `GET /api/predictions/elo` - Current ELO ratings for all teams
+- `GET /api/predictions/game?home=HOU&away=DAL&date=YYYY-MM-DD` - Pre-game prediction
+- `GET /api/predictions/trends/:team` - Rolling stats trends for a team
+- `POST /api/predictions/backtest` - Run historical backtest
+- `GET /api/market/surges` - Recent market surges (sharp action)
+- `GET /api/market/odds/:game_id` - Current odds & line movement
+- `GET /api/market/futures` - Latest futures odds

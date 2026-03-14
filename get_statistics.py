@@ -1,9 +1,24 @@
+import json
 import pandas as pd
-from nba_api.stats.endpoints import playercareerstats, playergamelog, TeamGameLogs, commonplayerinfo
 from datetime import datetime
+from pathlib import Path
 
-CURRENT_SEASON = '2023-24'
-PREVIOUS_SEASONS = ['2023-24', '2022-23', '2021-22', '2020-21', '2019-20']
+from nba_api.stats.endpoints import playercareerstats, playergamelog, TeamGameLogs, commonplayerinfo
+
+
+def _get_default_seasons():
+    """Load seasons from backend file if present, else compute from date."""
+    seasons_file = Path(__file__).parent / "backend" / "instance" / "seasons.json"
+    if seasons_file.exists():
+        data = json.loads(seasons_file.read_text())
+        return data["seasons"]
+    now = datetime.now()
+    year, month = now.year, now.month
+    start_year = year if month >= 10 else year - 1
+    return [f"{s}-{str(s + 1)[-2:]}" for s in range(start_year, start_year - 10, -1)]
+
+
+PREVIOUS_SEASONS = _get_default_seasons()
 
 class NBAStats:
     def sort_logs_by_date(self, logs):
