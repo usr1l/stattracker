@@ -65,6 +65,74 @@ def init_db() -> None:
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS team_game_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                season TEXT NOT NULL,
+                game_id TEXT NOT NULL,
+                game_date TEXT NOT NULL,
+                team_abbr TEXT NOT NULL,
+                matchup TEXT,
+                wl TEXT,
+                pts REAL,
+                opp_pts REAL,
+                pace REAL,
+                efg_pct REAL,
+                tov_pct REAL,
+                off_rating REAL,
+                def_rating REAL,
+                net_rating REAL,
+                source TEXT DEFAULT 'TeamGameLogs',
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(season, game_id, team_abbr)
+            )
+        """)
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_team_logs_team_date ON team_game_logs(team_abbr, game_date)"
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_team_logs_season ON team_game_logs(season)"
+        )
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS player_positions (
+                player_id INTEGER PRIMARY KEY,
+                team_abbr TEXT NOT NULL,
+                position TEXT NOT NULL,
+                player_name TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_player_positions_team ON player_positions(team_abbr)"
+        )
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS opponent_defense_matrix (
+                team_abbr TEXT NOT NULL,
+                position TEXT NOT NULL,
+                stat TEXT NOT NULL,
+                modifier REAL NOT NULL,
+                sample_size INTEGER DEFAULT 0,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (team_abbr, position, stat)
+            )
+        """)
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_opp_defense_lookup ON opponent_defense_matrix(team_abbr, position, stat)"
+        )
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS player_baselines (
+                player_id INTEGER NOT NULL,
+                stat TEXT NOT NULL,
+                per_minute_rate REAL NOT NULL,
+                projected_minutes REAL NOT NULL,
+                sample_size INTEGER DEFAULT 0,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (player_id, stat)
+            )
+        """)
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_player_baselines_player ON player_baselines(player_id)"
+        )
         conn.commit()
     finally:
         conn.close()

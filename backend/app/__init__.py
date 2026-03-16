@@ -1,4 +1,6 @@
 """Flask application factory."""
+import os
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -16,6 +18,11 @@ def create_app() -> Flask:
     app.register_blueprint(analysis_bp)
     app.register_blueprint(market_bp)
     app.register_blueprint(predictions_bp)
+
+    if os.environ.get("ENABLE_SCHEDULER", "1") == "1":
+        from scheduler import start_scheduler
+
+        start_scheduler()
 
     @app.route("/health")
     def health():

@@ -8,6 +8,25 @@ def decimal_odds_to_prob(decimal_odds: float) -> float:
     return 1.0 / decimal_odds
 
 
+def _extract_model_home_prob(game: Dict[str, Any]) -> float:
+    """Read a model probability from either the old or new prediction format."""
+    if "model_home_prob" in game:
+        return float(game["model_home_prob"])
+
+    projections = game.get("projections")
+    if isinstance(projections, dict):
+        final = projections.get("final")
+        if isinstance(final, dict) and "home_win_prob" in final:
+            return float(final["home_win_prob"])
+
+    if "home_win_prob" in game:
+        return float(game["home_win_prob"])
+
+    raise KeyError(
+        "Game is missing model probability; expected model_home_prob or projections.final.home_win_prob"
+    )
+
+
 def calculate_kelly_criterion(prob: float, decimal_odds: float, fraction: float = 0.25) -> float:
     """
     f = (bp - q) / b
@@ -40,7 +59,9 @@ def run_backtest(games: List[Dict[str, Any]], starting_bankroll: float = 10000.0
       "home_team": "...", "away_team": "...",
       "home_score": 110, "away_score": 105,
       "home_odds": 1.5, "away_odds": 2.6,   # Closing decimal odds
-      "model_home_prob": 0.70               # Model prediction
+      "model_home_prob": 0.70               # Legacy model prediction
+      # or:
+      "projections": {"final": {"home_win_prob": 0.70}}
     }
     """
     bankroll = starting_bankroll
@@ -57,7 +78,7 @@ def run_backtest(games: List[Dict[str, Any]], starting_bankroll: float = 10000.0
         home_won = g["home_score"] > g["away_score"]
         actual_result = 1.0 if home_won else 0.0
         
-        model_prob = g["model_home_prob"]
+        model_prob = _extract_model_home_prob(g)
         
         # Brier score: (forecast - actual)^2
         brier_sum += (model_prob - actual_result)**2

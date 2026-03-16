@@ -1,18 +1,23 @@
 """Pre-game prediction interface combining all signals."""
-from typing import Dict, Any
+from typing import Any, Dict, Mapping, Optional
 
 from prediction.features import build_game_features
 from prediction.model import predict
 from prediction.trends import get_team_trends
-from market.line_movement import get_game_line_history
 from market.db import get_db
 
-def predict_game(home_team: str, away_team: str, game_date: str, game_id: str = None) -> Dict[str, Any]:
-    """Generate a full pre-game prediction report."""
-    
+
+def predict_game(
+    home_team: str,
+    away_team: str,
+    game_date: str,
+    game_id: str = None,
+    weights: Optional[Mapping[str, float]] = None,
+) -> Dict[str, Any]:
+    """Generate a full pre-game prediction report with ensemble breakdowns."""
     # 1. Base statistical features & ML model prediction
     features = build_game_features(home_team, away_team, game_date)
-    projections = predict(features)
+    projections = predict(features, weights=weights)
     
     # 2. Add trend warnings
     home_trends = get_team_trends(home_team)
