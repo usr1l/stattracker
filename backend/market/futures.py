@@ -1,55 +1,73 @@
-"""Track NBA futures markets (championship, win totals) for macro surges."""
-from typing import List, Dict, Any
-import requests
 import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List
+
+import requests
 
 from market.db import get_db
 
-FUTURES_SURGE_THRESHOLD_PCT = 0.15 # 15% probability shift
+FUTURES_SURGE_THRESHOLD_PCT = 0.15  # 15% probability shift
 
-# Note: The Odds API futures endpoint requires specific parameters
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
+BASE_URL = "https://api.the-odds-api.com/v4"
+SPORT = "basketball_nba"
 
-def fetch_and_store_futures(market_key: str = "outrights"):
+
+def fetch_and_store_futures(market_key: str = "outrights") -> None:
     """Fetch futures and save to DB."""
     if not ODDS_API_KEY:
         return
-        
-    url = f"https://api.the-odds-api.com/v4/sports/basketball_nba_{market_key}/odds"
+
+    # Futures are requested via the standard sport key + markets=outrights.
+    url = f"{BASE_URL}/sports/{SPORT}/odds"
     params = {
         "apiKey": ODDS_API_KEY,
         "regions": "us",
-        "markets": "outrights",
+        "markets": market_key,
+        "oddsFormat": "decimal",
     }
+    conn = None
     try:
-        resp = requests.get(url, params=params)
-        if resp.status_code != 200:
-            return
-            
-        data = resp.json()
+        resp = requests.get(url, params=params, timeout=15)
+        resp.raise_for_status()
+
+        data: List[Dict[str, Any]] = resp.json()
         if not data:
             return
-            
+
         conn = get_db()
-        # simplified parsing assuming DraftKings or similar primary book
+        # Simplified parsing: take first bookmaker that offers outrights.
         for event in data:
             bookmakers = event.get("bookmakers", [])
-            if not bookmakers: continue
-            outcomes = bookmakers[0]["markets"][0]["outcomes"]
-            
+            if not bookmakers:
+                continue
+
+            futures_market = None
+            for bookmaker in bookmakers:
+                for market in bookmaker.get("markets", []):
+                    if market.get("key") == market_key:
+                        futures_market = market
+                        break
+                if futures_market:
+                    break
+
+            if not futures_market:
+                continue
+
+            outcomes = futures_market.get("outcomes", [])
             for oc in outcomes:
                 team = oc["name"]
                 price = oc["price"]
-                
                 conn.execute("""
                     INSERT INTO futures_history (market, team, price)
                     VALUES (?, ?, ?)
                 """, (market_key, team, price))
         conn.commit()
-        conn.close()
     except Exception as e:
         print(f"Futures fetch error: {e}")
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 def detect_futures_surges():

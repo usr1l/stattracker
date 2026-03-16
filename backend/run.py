@@ -22,6 +22,27 @@ get_players_csv_path = project_root / "players_csv" / "nba_players.csv"
 get_players_csv_path.parent.mkdir(parents=True, exist_ok=True)
 get_nba_players_csv()
 
+from prediction.elo import ELO_FILE
+from prediction.elo_builder import build_elo_from_history
+from prediction.team_stats import has_team_game_logs, refresh_team_stats
+from season import load_seasons
+
+# Bootstrap team logs only if cache table is empty.
+if not has_team_game_logs():
+    _, seasons = load_seasons()
+    try:
+        refresh_team_stats(seasons)
+    except Exception as exc:
+        print(f"Warning: team stats bootstrap failed: {exc}")
+
+# Bootstrap ELO file only when missing.
+if not ELO_FILE.exists():
+    _, seasons = load_seasons()
+    try:
+        build_elo_from_history(seasons)
+    except Exception as exc:
+        print(f"Warning: ELO bootstrap failed: {exc}")
+
 from app import create_app
 
 app = create_app()
