@@ -1,0 +1,69 @@
+services:
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    working_dir: /app/backend
+    env_file:
+      - .env.production
+    command: flask --app manage.py db upgrade
+    volumes:
+      - backend_instance:/app/backend/instance
+      - players_csv_data:/app/players_csv
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    working_dir: /app/backend
+    env_file:
+      - .env.production
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 --timeout 120 manage:app
+    volumes:
+      - backend_instance:/app/backend/instance
+      - players_csv_data:/app/players_csv
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    working_dir: /app/backend
+    env_file:
+      - .env.production
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: python worker.py
+    volumes:
+      - backend_instance:/app/backend/instance
+      - players_csv_data:/app/players_csv
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        API_PROXY_TARGET: ${API_PROXY_TARGET:-http://backend:5000}
+    env_file:
+      - .env.production
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      API_PROXY_TARGET: ${API_PROXY_TARGET:-http://backend:5000}
+      NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED:-1}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  backend_instance:
+  players_csv_data:

@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 
 import requests
 
+from app.logger import get_logger
 from market.db import get_db
 
 FUTURES_SURGE_THRESHOLD_PCT = 0.15  # 15% probability shift
@@ -11,6 +12,7 @@ FUTURES_SURGE_THRESHOLD_PCT = 0.15  # 15% probability shift
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
 BASE_URL = "https://api.the-odds-api.com/v4"
 SPORT = "basketball_nba"
+logger = get_logger(__name__)
 
 
 def fetch_and_store_futures(market_key: str = "outrights") -> None:
@@ -64,7 +66,7 @@ def fetch_and_store_futures(market_key: str = "outrights") -> None:
                 """, (market_key, team, price))
         conn.commit()
     except Exception as e:
-        print(f"Futures fetch error: {e}")
+        logger.error("Futures fetch error: %s", e)
     finally:
         if conn is not None:
             conn.close()

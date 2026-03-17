@@ -3,9 +3,12 @@ Pipfile.lock
 .csv
 .ipynb
 __pycache__/
+node_modules/
 test_script.py
 .env
 backend/instance/cache.db
+backend/instance/elo.json
+backend/instance/logs/
 backend/instance/seasons.json
 backend/instance/market.db
 backend/instance/models/

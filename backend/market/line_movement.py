@@ -1,11 +1,13 @@
 """Track line movement and detect sharp market action."""
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
+from app.logger import get_logger
 from market.db import get_db
 
 MOVEMENT_SURGE_THRESHOLD = 2.5  # points
 MOVEMENT_SURGE_HOURS = 4
+logger = get_logger(__name__)
 
 
 def get_game_line_history(game_id: str, market_type: str = "spreads") -> List[Dict[str, Any]]:
@@ -74,7 +76,12 @@ def detect_surges() -> None:
                                 INSERT INTO market_signals (signal_type, game_id, team, description, magnitude)
                                 VALUES ('line_movement', ?, ?, ?, ?)
                             """, (game_id, game["home_team"], desc, abs(delta)))
-                            print(f"Detected surge: {desc} for {game['home_team']} vs {game['away_team']}")
+                            logger.info(
+                                "Detected surge for %s vs %s: %s",
+                                game["home_team"],
+                                game["away_team"],
+                                desc,
+                            )
         conn.commit()
     finally:
         conn.close()

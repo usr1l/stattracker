@@ -1,7 +1,10 @@
 """Client for The Odds API (https://the-odds-api.com)."""
 import os
+from typing import Any, Dict, List
+
 import requests
-from typing import List, Dict, Any
+
+from app.logger import get_logger
 from market.db import get_db
 
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
@@ -9,12 +12,13 @@ BASE_URL = "https://api.the-odds-api.com/v4"
 SPORT = "basketball_nba"
 REGIONS = "us"
 MARKETS = "h2h,spreads,totals"
+logger = get_logger(__name__)
 
 
 def get_live_odds() -> List[Dict[str, Any]]:
     """Fetch live and upcoming NBA odds."""
     if not ODDS_API_KEY:
-        print("Warning: ODDS_API_KEY not set. Skipping odds fetch.")
+        logger.warning("ODDS_API_KEY not set. Skipping odds fetch.")
         return []
         
     url = f"{BASE_URL}/sports/{SPORT}/odds"
@@ -29,7 +33,7 @@ def get_live_odds() -> List[Dict[str, Any]]:
         resp.raise_for_status()
         return resp.json()
     except Exception as e:
-        print(f"Error fetching odds: {e}")
+        logger.error("Error fetching odds: %s", e)
         return []
 
 
@@ -102,4 +106,4 @@ def poll_and_store_odds():
     """Wrapper to be called by scheduler."""
     games = get_live_odds()
     store_odds_snapshot(games)
-    print(f"Stored odds snapshot for {len(games)} games.")
+    logger.info("Stored odds snapshot for %s games.", len(games))

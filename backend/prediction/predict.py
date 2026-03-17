@@ -1,7 +1,7 @@
 """Pre-game prediction interface combining all signals."""
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict
 
-from prediction.features import build_game_features
+from prediction.features import build_feature_snapshot, flatten_feature_snapshot
 from prediction.model import predict
 from prediction.trends import get_team_trends
 from market.db import get_db
@@ -12,12 +12,19 @@ def predict_game(
     away_team: str,
     game_date: str,
     game_id: str = None,
-    weights: Optional[Mapping[str, float]] = None,
 ) -> Dict[str, Any]:
-    """Generate a full pre-game prediction report with ensemble breakdowns."""
+    """Generate a full pre-game prediction report with consolidated model output."""
     # 1. Base statistical features & ML model prediction
-    features = build_game_features(home_team, away_team, game_date)
-    projections = predict(features, weights=weights)
+    feature_snapshot = build_feature_snapshot(home_team, away_team, game_date, game_id=game_id)
+    features = flatten_feature_snapshot(feature_snapshot)
+    projections = predict(features)
+    key_drivers = [
+        {
+            **driver,
+            "impact": "High" if float(driver.get("game_impact", 0.0)) >= 0.2 else "Medium" if float(driver.get("game_impact", 0.0)) >= 0.1 else "Low",
+        }
+        for driver in projections.get("top_features", [])
+    ]
     
     # 2. Add trend warnings
     home_trends = get_team_trends(home_team)
@@ -51,7 +58,8 @@ def predict_game(
             "date": game_date
         },
         "projections": projections,
-        "features_snapshot": features,
+        "key_drivers": key_drivers,
+        "features_snapshot": feature_snapshot,
         "trends": {
             "home": home_trends.get("surge_flags", []),
             "away": away_trends.get("surge_flags", []),

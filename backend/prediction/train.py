@@ -1,11 +1,11 @@
-"""Historical training pipeline for ensemble prediction models."""
+"""Historical training pipeline for consolidated prediction models."""
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
 from market.db import get_db
-from prediction.features import FEATURE_GROUPS, build_feature_row, build_game_features
-from prediction.model import train_ensemble_models
+from prediction.features import CONSOLIDATED_FEATURES, build_feature_row, build_game_features
+from prediction.model import train_consolidated_models
 from prediction.team_stats import refresh_team_stats
 from season import load_seasons
 
@@ -64,9 +64,9 @@ def _load_training_games(seasons: List[str]) -> List[dict]:
 
 def _build_xy(
     games: List[dict],
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Build split model inputs and targets from historical games."""
-    x_rows: Dict[str, List[List[float]]] = {group: [] for group in FEATURE_GROUPS}
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Build consolidated model inputs and targets from historical games."""
+    x_rows: List[List[float]] = []
     y_win: List[int] = []
     y_spread: List[float] = []
     y_total: List[float] = []
@@ -76,18 +76,16 @@ def _build_xy(
             home_team=game["home_team"],
             away_team=game["away_team"],
             game_date=game["game_date"],
+            game_id=game["game_id"],
         )
-        for group in FEATURE_GROUPS:
-            x_rows[group].append(build_feature_row(features, group))
+        x_rows.append(build_feature_row(features))
         margin = game["home_score"] - game["away_score"]
         y_win.append(1 if margin > 0 else 0)
         y_spread.append(margin)
         y_total.append(game["home_score"] + game["away_score"])
 
     return (
-        np.array(x_rows["elo"], dtype=float),
-        np.array(x_rows["stats"], dtype=float),
-        np.array(x_rows["schedule"], dtype=float),
+        np.array(x_rows, dtype=float),
         np.array(y_win, dtype=int),
         np.array(y_spread, dtype=float),
         np.array(y_total, dtype=float),
@@ -95,7 +93,7 @@ def _build_xy(
 
 
 def train_from_history(seasons: Optional[List[str]] = None) -> dict:
-    """Build historical dataset and train ensemble models."""
+    """Build historical dataset and train consolidated models."""
     _, default_seasons = load_seasons()
     seasons = seasons or default_seasons
 
@@ -118,7 +116,7 @@ def train_from_history(seasons: Optional[List[str]] = None) -> dict:
             "games": len(games),
         }
 
-    X_elo, X_stats, X_sched, y_win, y_spread, y_total = _build_xy(games)
+    feature_matrix, y_win, y_spread, y_total = _build_xy(games)
     if len(np.unique(y_win)) < 2:
         return {
             "ok": False,
@@ -126,9 +124,10 @@ def train_from_history(seasons: Optional[List[str]] = None) -> dict:
             "games": len(games),
         }
 
-    train_ensemble_models(X_elo, X_stats, X_sched, y_win, y_spread, y_total)
+    training_summary = train_consolidated_models(feature_matrix, y_win, y_spread, y_total)
     return {
         "ok": True,
         "games_used": int(len(games)),
-        "features": FEATURE_GROUPS,
+        "features": list(CONSOLIDATED_FEATURES),
+        "models": training_summary,
     }
