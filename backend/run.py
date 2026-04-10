@@ -1,5 +1,6 @@
 """Entry point for the local Flask backend."""
 import os
+import threading
 from datetime import date, datetime, time, timedelta
 from typing import Optional
 from zoneinfo import ZoneInfo
@@ -20,7 +21,9 @@ from season import load_seasons
 
 logger = get_logger(__name__)
 EASTERN = ZoneInfo("America/New_York")
+DEFAULT_PORT = int(os.environ.get("PORT", "5001"))
 STARTUP_CATCHUP_STALE_HOURS = int(os.environ.get("STARTUP_CATCHUP_STALE_HOURS", "24"))
+STARTUP_CATCHUP_MODE = os.environ.get("STARTUP_CATCHUP_MODE", "background").strip().lower()
 
 
 def _parse_sql_date(value: Optional[str]) -> Optional[date]:
@@ -105,18 +108,48 @@ def run_startup_catchup() -> None:
         logger.warning("Catch-up referee refresh failed: %s", exc)
 
 
+def _startup_catchup_runner() -> None:
+    """Wrap catch-up with top-level logging so background mode is observable."""
+    logger.info("Startup catch-up started in %s mode.", STARTUP_CATCHUP_MODE)
+    try:
+        run_startup_catchup()
+    except Exception:
+        logger.exception("Startup catch-up crashed unexpectedly.")
+    else:
+        logger.info("Startup catch-up finished.")
+
+
+def launch_startup_catchup() -> None:
+    """Start catch-up in the configured mode without blocking local boot by default."""
+    if STARTUP_CATCHUP_MODE == "skip":
+        logger.info("Startup catch-up skipped by configuration.")
+        return
+
+    if STARTUP_CATCHUP_MODE in {"block", "blocking", "sync", "synchronous"}:
+        _startup_catchup_runner()
+        return
+
+    catchup_thread = threading.Thread(
+        target=_startup_catchup_runner,
+        name="startup-catchup",
+        daemon=True,
+    )
+    catchup_thread.start()
+    logger.info("Startup catch-up running in background thread %s.", catchup_thread.name)
+
+
 app = create_app()
 
 
 def main() -> None:
     """Run local Flask app with startup catch-up and the in-process scheduler."""
-    run_startup_catchup()
+    launch_startup_catchup()
 
     if os.environ.get("START_LOCAL_SCHEDULER_ON_RUN", "1") == "1":
         start_scheduler()
         logger.info("Local scheduler enabled for run.py process.")
 
-    app.run(debug=True, port=5000, use_reloader=False)
+    app.run(debug=True, port=DEFAULT_PORT, use_reloader=False)
 
 
 if __name__ == "__main__":

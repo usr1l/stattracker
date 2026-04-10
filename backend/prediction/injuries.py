@@ -8,9 +8,10 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from nba_api.stats.endpoints import BoxScoreSummaryV2, LeagueDashPlayerStats, ScoreboardV2
+from nba_api.stats.endpoints import BoxScoreSummaryV2, LeagueDashPlayerStats
 from nba_api.stats.static import teams as nba_teams
 
+from app.services.scoreboard import get_scoreboard_game_header
 from market.db import get_db
 from season import load_seasons
 
@@ -62,10 +63,7 @@ def _normalize_player_name(value: Any) -> str:
 def _scoreboard_context(target_date: str) -> Tuple[List[str], List[str]]:
     """Return scheduled game ids and team abbreviations for a date."""
     formatted = _format_scoreboard_date(target_date)
-    try:
-        df = ScoreboardV2(game_date=formatted).get_data_frames()[0]
-    except TypeError:
-        df = ScoreboardV2(game_date=formatted, day_offset=0).get_data_frames()[0]
+    df = get_scoreboard_game_header(formatted)
 
     if df.empty:
         return [], []

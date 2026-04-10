@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Root workspace manager for StatTracker Fullstack App",
   "scripts": {
-    "kill-ports": "echo 'Killing ports 3000 and 5000...' && lsof -t -i:3000 -i:5000 | xargs -r kill -9",
+    "kill-ports": "echo 'Killing ports 3000 and 5001...' && lsof -t -i:3000 -i:5001 | xargs -r kill -9",
     "start:backend": "cd backend && ../.venv/bin/python run.py",
     "start:frontend": "cd frontend && npm run dev",
     "reset-dev": "npm run kill-ports && concurrently \"npm run start:backend\" \"npm run start:frontend\""

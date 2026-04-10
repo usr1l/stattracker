@@ -1,18 +1,26 @@
 # StatTracker Flask Backend
 
+## Python
+
+Use Python 3.11 for the backend runtime.
+
 ## Run
 
 From project root:
 
 ```bash
-# Install dependencies (if not already)
-pip install -r backend/requirements.txt
-# Or use project venv
-.venv/bin/pip install -r backend/requirements.txt
+# Create a Python 3.11 virtualenv if you do not already have one
+python3.11 -m venv .venv
+
+# Install the reproducible backend dependency set
+.venv/bin/pip install -r backend/requirements.lock.txt
 
 # Start server (from project root)
 .venv/bin/python backend/run.py
 ```
+
+If you need to refresh dependency constraints, edit `backend/requirements.txt` and then
+regenerate `backend/requirements.lock.txt` from a clean Python 3.11 environment.
 
 Or from `backend/`:
 
@@ -21,7 +29,14 @@ cd backend
 ../.venv/bin/python run.py
 ```
 
-Server runs at http://localhost:5000
+For a lighter local smoke run without catch-up jobs or the scheduler:
+
+```bash
+cd backend
+STARTUP_CATCHUP_MODE=skip START_LOCAL_SCHEDULER_ON_RUN=0 ../.venv/bin/python run.py
+```
+
+Server runs at http://localhost:5001 by default.
 
 ## Endpoints
 
@@ -44,3 +59,4 @@ Server runs at http://localhost:5000
 - `GET /api/market/surges` - Recent market surges (sharp action)
 - `GET /api/market/odds/:game_id` - Current odds & line movement
 - `GET /api/market/futures` - Latest futures odds
+- `GET /api/schedule/today` - Lightweight slate for the current Eastern date

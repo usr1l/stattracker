@@ -1,4 +1,5 @@
 .venv/
+backend/.venv311/
 Pipfile.lock
 .csv
 .ipynb

@@ -5,9 +5,9 @@ from typing import Any, Dict, Iterable, List, Optional
 from zoneinfo import ZoneInfo
 
 import requests
-from nba_api.stats.endpoints import ScoreboardV2
 
 from app.logger import get_logger
+from app.services.scoreboard import get_scoreboard_game_header
 from market.db import get_db
 
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
@@ -123,13 +123,7 @@ def _scoreboard_has_games(target_date) -> Optional[bool]:
     """Return whether the NBA scoreboard has any games for a given date."""
     formatted_date = _format_scoreboard_date(target_date)
     try:
-        df = ScoreboardV2(game_date=formatted_date).get_data_frames()[0]
-    except TypeError:
-        try:
-            df = ScoreboardV2(game_date=formatted_date, day_offset=0).get_data_frames()[0]
-        except Exception as exc:
-            logger.warning("Unable to read scoreboard for %s: %s", formatted_date, exc)
-            return None
+        df = get_scoreboard_game_header(formatted_date)
     except Exception as exc:
         logger.warning("Unable to read scoreboard for %s: %s", formatted_date, exc)
         return None

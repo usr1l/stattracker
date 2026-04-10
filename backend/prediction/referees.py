@@ -5,8 +5,9 @@ from datetime import date, datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional
 
 import pandas as pd
-from nba_api.stats.endpoints import BoxScoreSummaryV2, BoxScoreTraditionalV2, ScoreboardV2
+from nba_api.stats.endpoints import BoxScoreSummaryV2, BoxScoreTraditionalV2
 
+from app.services.scoreboard import get_scoreboard_game_header
 from market.db import get_db
 
 logger = logging.getLogger("stattracker.prediction.referees")
@@ -31,10 +32,7 @@ def _format_scoreboard_date(target_date: str) -> str:
 def _scoreboard_game_ids(target_date: str) -> List[str]:
     """Fetch scheduled game ids for a single date."""
     formatted = _format_scoreboard_date(target_date)
-    try:
-        df = ScoreboardV2(game_date=formatted).get_data_frames()[0]
-    except TypeError:
-        df = ScoreboardV2(game_date=formatted, day_offset=0).get_data_frames()[0]
+    df = get_scoreboard_game_header(formatted)
 
     if df.empty or "GAME_ID" not in df.columns:
         return []

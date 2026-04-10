@@ -1,17 +1,19 @@
-flask>=2.3.0
-flask-cors>=4.0.0
-flask-migrate>=4.0.7
-flask-sqlalchemy>=3.1.1
-python-dotenv>=1.0.0
-pandas>=2.0.0
-numpy>=1.24.0
-nba_api>=1.5.0
-requests>=2.31.0
-beautifulsoup4>=4.12.3
-scikit-learn>=1.3.0
-xgboost>=2.1.3
-joblib>=1.3.0
-apscheduler>=3.10
-alembic>=1.14.0
-gunicorn>=23.0.0
-sqlalchemy>=2.0.36
+# Direct backend dependencies for the Python 3.11 runtime.
+# Pin the fully resolved install set in backend/requirements.lock.txt.
+flask>=3.1,<4
+flask-cors>=6.0,<7
+flask-migrate>=4.1,<5
+flask-sqlalchemy>=3.1,<4
+python-dotenv>=1.2,<2
+pandas>=3.0,<4
+numpy>=2.4,<3
+nba_api>=1.11,<2
+requests>=2.33,<3
+beautifulsoup4>=4.14,<5
+scikit-learn>=1.8,<2
+xgboost>=3.2,<4
+joblib>=1.5,<2
+apscheduler>=3.11,<4
+alembic>=1.18,<2
+gunicorn>=25.3,<26
+sqlalchemy>=2.0.49,<3

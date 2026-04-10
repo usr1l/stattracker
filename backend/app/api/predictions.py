@@ -1,12 +1,14 @@
 """Prediction endpoints."""
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 from flask import Blueprint, jsonify, request
 from nba_api.stats.static import teams as nba_teams
 
+from app.logger import get_logger
+from app.services.scoreboard import get_scoreboard_game_header
 from market.db import get_db
 from prediction.elo import load_elo
 from prediction.props import project_player_stat
@@ -17,7 +19,54 @@ from app.services.statistics import get_player_game_logs
 
 bp = Blueprint("predictions", __name__, url_prefix="/api/predictions")
 EASTERN = ZoneInfo("America/New_York")
+logger = get_logger(__name__)
 TEAM_BY_ID = {int(team["id"]): team for team in nba_teams.get_teams()}
+TEAM_META_BY_ABBR = {
+    str(team["abbreviation"]).upper(): {
+        "abbr": str(team["abbreviation"]).upper(),
+        "full_name": str(team["full_name"]),
+    }
+    for team in nba_teams.get_teams()
+}
+TEAM_NAME_LOOKUP = {
+    **{abbr: abbr for abbr in TEAM_META_BY_ABBR},
+    **{meta["full_name"].upper(): abbr for abbr, meta in TEAM_META_BY_ABBR.items()},
+    **{str(team["nickname"]).upper(): str(team["abbreviation"]).upper() for team in nba_teams.get_teams()},
+    **{str(team["city"]).upper(): str(team["abbreviation"]).upper() for team in nba_teams.get_teams()},
+    "LOS ANGELES CLIPPERS": "LAC",
+    "LA CLIPPERS": "LAC",
+    "LOS ANGELES LAKERS": "LAL",
+    "LA LAKERS": "LAL",
+}
+
+
+def _parse_commence_time(value):
+    """Parse ISO-ish commence times into timezone-aware datetimes."""
+    if not value:
+        return None
+
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _normalize_team_identity(value):
+    """Resolve a team label into abbreviation and display name."""
+    raw = str(value or "").strip()
+    if not raw:
+        return None, None
+
+    abbr = TEAM_NAME_LOOKUP.get(raw.upper())
+    if not abbr:
+        return None, raw
+
+    meta = TEAM_META_BY_ABBR.get(abbr, {})
+    return abbr, meta.get("full_name") or raw
 
 
 def _decimal_odds_to_prob(price):
@@ -56,13 +105,8 @@ def _latest_market_snapshot(game_id):
 
 def _load_scoreboard_games(date_str):
     """Fetch scoreboard rows for a date and map them into a lightweight schedule payload."""
-    from nba_api.stats.endpoints import ScoreboardV2
-
     target = datetime.strptime(date_str, "%Y-%m-%d").strftime("%m/%d/%Y")
-    try:
-        df = ScoreboardV2(game_date=target).get_data_frames()[0]
-    except TypeError:
-        df = ScoreboardV2(game_date=target, day_offset=0).get_data_frames()[0]
+    df = get_scoreboard_game_header(target)
 
     games = []
     for _, row in df.iterrows():
@@ -83,6 +127,49 @@ def _load_scoreboard_games(date_str):
                 "away_name": str(away_team.get("full_name") or away_abbr),
             }
         )
+    return games
+
+
+def _load_cached_odds_games(date_str):
+    """Fallback slate sourced from locally stored odds when scoreboard is unavailable."""
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            """
+            SELECT game_id, home_team, away_team, commence_time, MAX(timestamp) AS last_seen
+            FROM odds_history
+            GROUP BY game_id, home_team, away_team, commence_time
+            ORDER BY last_seen DESC
+            """
+        ).fetchall()
+    finally:
+        conn.close()
+
+    games = []
+    for row in rows:
+        commence_time = _parse_commence_time(row["commence_time"])
+        if commence_time is None:
+            continue
+        if commence_time.astimezone(EASTERN).date().isoformat() != date_str:
+            continue
+
+        home_abbr, home_name = _normalize_team_identity(row["home_team"])
+        away_abbr, away_name = _normalize_team_identity(row["away_team"])
+        if not home_abbr or not away_abbr:
+            continue
+
+        games.append(
+            {
+                "game_id": str(row["game_id"]),
+                "status": "Scheduled",
+                "home_team": home_abbr,
+                "away_team": away_abbr,
+                "home_name": home_name or home_abbr,
+                "away_name": away_name or away_abbr,
+            }
+        )
+
+    games.sort(key=lambda game: game["game_id"])
     return games
 
 @bp.route("/elo", methods=["GET"])
@@ -122,7 +209,18 @@ def get_dashboard_predictions():
     try:
         games = _load_scoreboard_games(date_str)
     except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+        logger.warning("Scoreboard slate fetch failed for %s: %s", date_str, exc)
+        games = _load_cached_odds_games(date_str)
+        if not games:
+            return jsonify(
+                {
+                    "error": (
+                        f"NBA scoreboard fetch failed for {date_str}: {exc}. "
+                        "No local odds slate is cached for that date."
+                    )
+                }
+            ), 500
+        logger.info("Using locally cached odds slate for %s with %s games.", date_str, len(games))
 
     payload = []
     for game in games:

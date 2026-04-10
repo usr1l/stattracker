@@ -12,6 +12,7 @@ from app.api.analysis import bp as analysis_bp
 from app.api.live import bp as live_bp
 from app.api.market import bp as market_bp
 from app.api.predictions import bp as predictions_bp
+from app.api.schedule import bp as schedule_bp
 from app.logger import configure_logging
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent.parent / "migrations"
@@ -42,6 +43,7 @@ def create_app() -> Flask:
     app.register_blueprint(live_bp)
     app.register_blueprint(market_bp)
     app.register_blueprint(predictions_bp)
+    app.register_blueprint(schedule_bp)
 
     @app.route("/health")
     def health():
